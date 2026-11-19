@@ -1,0 +1,94 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* POTORY Admin — Shop과 같은 브랜드 색(포레스트·라임)에 업무용으로 차분한 화이트 베이스 */
+:root {
+  --radius: 0.75rem;
+  --lime: #b8ff00;
+  --forest: #0b4a0a;
+
+  --background: #ffffff;
+  --foreground: #16211a;
+  --card: #ffffff;
+  --card-foreground: #16211a;
+  --popover: #ffffff;
+  --popover-foreground: #16211a;
+  --primary: var(--forest);
+  --primary-foreground: #ffffff;
+  --secondary: #f2f4f1;
+  --secondary-foreground: #16211a;
+  --muted: #f5f6f4;
+  --muted-foreground: #66706a;
+  --accent: #eef3e8;
+  --accent-foreground: var(--forest);
+  --destructive: #d93a2b;
+  --border: #e5e8e3;
+  --input: #dfe3dd;
+  --ring: var(--forest);
+}
+
+@theme inline {
+  --font-sans: "Pretendard Variable", Pretendard, system-ui, sans-serif;
+  --font-display: "Anton", "Black Han Sans", sans-serif;
+
+  --color-lime: var(--lime);
+  --color-forest: var(--forest);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+}
+
+.display {
+  font-family: var(--font-display);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+/* 제작지시서 인쇄: 화면 UI는 숨기고 지시서만 A4로 */
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
+  body * {
+    visibility: hidden;
+  }
+  #print-sheet,
+  #print-sheet * {
+    visibility: visible;
+  }
+  #print-sheet {
+    position: absolute;
+    inset: 0;
+  }
+}

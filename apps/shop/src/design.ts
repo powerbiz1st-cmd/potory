@@ -72,7 +72,7 @@ export const isDark = (hex: string) => {
 
 // 예전 링크(없어진 모양·식물)도 열리도록 보정
 const OLD_SHAPES: Record<string, Shape> = { classic: 'tapered', square: 'cylinder' }
-function normalize(d: Design): Design {
+export function normalizeDesign(d: Design): Design {
   const shape = (OLD_SHAPES[d.shape] ?? d.shape) as Shape
   return {
     ...d,
@@ -90,7 +90,7 @@ export function decodeDesign(s: string | null): Design | null {
   if (!s) return null
   try {
     const b64 = s.replace(/-/g, '+').replace(/_/g, '/')
-    return normalize({ ...DEFAULT_DESIGN, ...JSON.parse(decodeURIComponent(atob(b64))) })
+    return normalizeDesign({ ...DEFAULT_DESIGN, ...JSON.parse(decodeURIComponent(atob(b64))) })
   } catch {
     return null
   }

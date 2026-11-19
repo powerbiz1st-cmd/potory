@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
+import { StockService } from '../stock/stock.service'
 import { PrismaService } from '../prisma/prisma.service'
 import { Prisma } from '../generated/prisma/client'
 import type { OrderStatus } from '../generated/prisma/enums'
@@ -35,7 +36,10 @@ function toPublic(o: OrderWithEvents) {
 
 @Injectable()
 export class OrdersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly stock: StockService,
+  ) {}
 
   private async newOrderNo() {
     const d = new Date()
@@ -48,16 +52,22 @@ export class OrdersService {
   }
 
   async create(dto: CreateOrderDto) {
-    const order = await this.prisma.order.create({
-      data: {
-        no: await this.newOrderNo(),
-        name: dto.name.trim(),
-        phone: digits(dto.phone),
-        design: { ...dto.design, text: dto.design.text.trim() },
-        total: priceOf(dto.design),
-        events: { create: { status: 'RECEIVED' } },
-      },
-      include: withEvents,
+    const no = await this.newOrderNo()
+    // 주문 저장 + 재고 차감을 한 번에 (둘 중 하나만 되는 일이 없게)
+    const order = await this.prisma.$transaction(async (tx) => {
+      const created = await tx.order.create({
+        data: {
+          no,
+          name: dto.name.trim(),
+          phone: digits(dto.phone),
+          design: { ...dto.design, text: dto.design.text.trim() },
+          total: priceOf(dto.design),
+          events: { create: { status: 'RECEIVED' } },
+        },
+        include: withEvents,
+      })
+      await this.stock.consume(tx, dto.design, 1)
+      return created
     })
     return toPublic(order)
   }
@@ -101,10 +111,24 @@ export class OrdersService {
   async updateStatus(no: string, dto: UpdateStatusDto) {
     const order = await this.prisma.order.findUnique({ where: { no } })
     if (!order) throw new NotFoundException('주문을 찾을 수 없어요')
-    return this.prisma.order.update({
-      where: { no },
-      data: { status: dto.status, events: { create: { status: dto.status, note: dto.note } } },
-      include: withEvents,
+    if (order.status === dto.status) throw new BadRequestException('이미 그 상태예요')
+    const design = order.design as { shape: string }
+    return this.prisma.$transaction(async (tx) => {
+      // 취소하면 재고 복구, 취소를 되돌리면 다시 차감
+      if (dto.status === 'CANCELED') await this.stock.consume(tx, design, -1)
+      if (order.status === 'CANCELED') await this.stock.consume(tx, design, 1)
+      return tx.order.update({
+        where: { no },
+        data: { status: dto.status, events: { create: { status: dto.status, note: dto.note } } },
+        include: withEvents,
+      })
     })
+  }
+
+  // 관리자: 한 건 (개인정보 그대로)
+  async findAdmin(no: string) {
+    const order = await this.prisma.order.findUnique({ where: { no }, include: withEvents })
+    if (!order) throw new NotFoundException('주문을 찾을 수 없어요')
+    return order
   }
 }

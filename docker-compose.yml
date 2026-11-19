@@ -52,7 +52,22 @@ services:
       # 비워두면 "지금 접속한 주소:3000" 을 API로 사용 (같은 와이파이 휴대폰에서도 동작)
       - VITE_API_URL=${VITE_API_URL:-}
 
+  admin:
+    image: node:22-alpine
+    # Shop의 디자인 타입·화분 그림(apps/shop/src)을 같이 쓰려고 apps 폴더 전체를 붙임
+    working_dir: /apps/admin
+    command: sh -c "npm install --no-audit --no-fund && npm run dev -- --host 0.0.0.0 --port 5174"
+    ports:
+      - "5174:5174"
+    volumes:
+      - ./apps:/apps
+      - admin_node_modules:/apps/admin/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - VITE_API_URL=${VITE_API_URL:-}
+
 volumes:
   db_data:
+  admin_node_modules:
   api_node_modules:
   shop_node_modules:

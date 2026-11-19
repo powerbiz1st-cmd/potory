@@ -44,3 +44,12 @@ model OrderEvent {
 
   @@index([orderId])
 }
+
+// 재고: 화분 몸체(모양별) · 몬스테라 묘목. 주문이 들어오면 자동 차감, 취소되면 복구
+model StockItem {
+  sku       String   @id // pot-cylinder, pot-glass, plant-monstera …
+  name      String
+  qty       Int
+  threshold Int      @default(5) // 이 수량 이하면 "부족" 경고
+  updatedAt DateTime @updatedAt
+}

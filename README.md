@@ -9,7 +9,7 @@
 |---|---|---|
 | `apps/shop` | 고객용 3D 커스터마이저 (React · Vite · React Three Fiber · shadcn/ui · Tailwind v4) | ✅ |
 | `apps/api` | 주문 API (NestJS 12 · Prisma 7 · PostgreSQL 17) | ✅ |
-| `apps/admin` | 관리자 백오피스 (주문 · 제작지시서 · 재고) | 예정 |
+| `apps/admin` | 관리자 백오피스 — 실시간 주문 목록, 상태 변경, 제작지시서 인쇄, 재고 (React · shadcn/ui) | ✅ |
 | `apps/console` | 운영 콘솔 (통계 · 서버 상태 · 장애 알림) | 예정 |
 
 ## 실행
@@ -22,6 +22,7 @@ docker compose up -d
 ```
 
 - Shop: http://localhost:5173
+- Admin: http://localhost:5174 (`.env` 의 `ADMIN_TOKEN` 으로 로그인)
 - API 상태: http://localhost:3000/health
 
 같은 와이파이의 휴대폰에서는 `http://<PC의 IP>:5173` 으로 접속하면 됩니다.
@@ -35,7 +36,9 @@ docker compose up -d
 | `GET` | `/orders?no=..&no=..` | 여러 주문 한 번에 조회 (휴대폰에 저장된 내 주문 목록) |
 | `POST` | `/orders/lookup` | 이름 + 휴대폰 번호로 찾기 |
 | `GET` | `/admin/orders` | 관리자: 주문 목록 (`x-admin-token` 필요) |
-| `PATCH` | `/admin/orders/:no/status` | 관리자: 상태 변경 (접수 → 제작 중 → 출고) |
+| `PATCH` | `/admin/orders/:no/status` | 관리자: 상태 변경 (접수 → 제작 중 → 출고 / 취소 시 재고 복구) |
+| `GET` | `/admin/stock` | 관리자: 재고 (주문 시 화분 몸체·몬스테라 자동 차감) |
+| `PATCH` | `/admin/stock/:sku` | 관리자: 입고·수동 조정 |
 | `GET` | `/health` | 서버 · DB 상태 |
 
 ## 3D 식물 모델 변환

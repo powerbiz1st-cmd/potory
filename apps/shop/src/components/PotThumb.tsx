@@ -1,5 +1,5 @@
 import { useId } from 'react'
-import type { Design } from '@/design'
+import type { Design } from '../design'
 
 // 갤러리·주문서용 가벼운 2D 화분 그림 (3D 캔버스를 여러 개 띄우지 않기 위해 SVG 사용)
 // 3D와 같은 비율: 낮은 화분 + 큰 몬스테라

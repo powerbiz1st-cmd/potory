@@ -48,6 +48,17 @@ export class AdminOrdersController {
     return this.orders.listAll(status as OrderStatus | undefined)
   }
 
+  // 관리자 화면 로그인 확인용 (토큰이 맞으면 200)
+  @Get('ping')
+  ping() {
+    return { ok: true }
+  }
+
+  @Get(':no')
+  one(@Param('no') no: string) {
+    return this.orders.findAdmin(no)
+  }
+
   @Patch(':no/status')
   updateStatus(@Param('no') no: string, @Body() dto: UpdateStatusDto) {
     return this.orders.updateStatus(no, dto)
