@@ -11,6 +11,7 @@ import { DEFAULT_DESIGN, SHAPES, encodeDesign, randomDesign, won, type Design } 
 import { prefersReducedMotion } from '@/hooks'
 import SiteHeader from '@/components/SiteHeader'
 import PotThumb from '@/components/PotThumb'
+import LiftText from '@/components/LiftText'
 import { preloadPlant } from '@/three/ModelPlant'
 
 // 첫 화면 대표 화분: 시연 임팩트용으로 몬스테라 (모델은 페이지 열자마자 미리 받아 둠)
@@ -52,7 +53,8 @@ export default function Landing() {
     }
     id = requestAnimationFrame(raf)
     const ctx = gsap.context(() => {
-      gsap.from('[data-rise]', { yPercent: 110, opacity: 0, duration: 0.9, ease: 'expo.out', stagger: 0.08 })
+      // 등장 후엔 잘림(overflow) 해제 → 마우스로 글자가 들려도 위가 안 잘림
+      gsap.from('[data-rise]', { yPercent: 110, opacity: 0, duration: 0.9, ease: 'expo.out', stagger: 0.08, onComplete: () => gsap.set('[data-clip]', { overflow: 'visible' }) })
       gsap.from('[data-pop]', { scale: 0, rotate: -20, duration: 0.7, ease: 'back.out(2)', delay: 0.5, stagger: 0.1 })
     }, heroRef)
     return () => {
@@ -75,10 +77,10 @@ export default function Landing() {
             <Sparkles /> 세상에 하나뿐인 내 화분
           </Badge>
           <h1 className="display text-[clamp(4.2rem,13vw,10rem)] text-forest">
-            <span className="block overflow-hidden"><span data-rise className="block">Make</span></span>
-            <span className="block overflow-hidden"><span data-rise className="block">your own</span></span>
-            <span className="block overflow-hidden">
-              <span data-rise className="inline-block rounded-2xl bg-lime px-3 text-forest">pot.</span>
+            <span data-clip className="block overflow-hidden"><span data-rise className="block"><LiftText text="Make" /></span></span>
+            <span data-clip className="block overflow-hidden"><span data-rise className="block"><LiftText text="your own" /></span></span>
+            <span data-clip className="block overflow-hidden">
+              <span data-rise className="inline-block rounded-2xl bg-lime px-3 text-forest"><LiftText text="pot." /></span>
             </span>
           </h1>
           <p className="mt-6 max-w-md text-lg leading-relaxed text-forest/80">
@@ -126,7 +128,7 @@ export default function Landing() {
 
       {/* HOW */}
       <section id="how" className="mx-auto max-w-7xl px-4 py-20 md:px-8">
-        <h2 className="display mb-10 text-[clamp(3rem,8vw,6rem)] text-forest">How it works</h2>
+        <h2 className="display mb-10 text-[clamp(3rem,8vw,6rem)] text-forest"><LiftText text="How it works" /></h2>
         <div className="grid gap-4 md:grid-cols-3">
           {STEPS.map((s, i) => (
             <Card key={s.title} className="relative gap-0 rounded-3xl border-2 border-forest bg-card py-0 shadow-[6px_6px_0_var(--forest)]">
@@ -147,7 +149,7 @@ export default function Landing() {
       <section id="gallery" className="bg-forest py-20 text-paper">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
           <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
-            <h2 className="display text-[clamp(3rem,8vw,6rem)] text-lime">Made by you</h2>
+            <h2 className="display text-[clamp(3rem,8vw,6rem)] text-lime"><LiftText text="Made by you" /></h2>
             <p className="max-w-xs text-paper/70">다른 사람이 만든 화분이에요. 누르면 그 디자인에서 시작해요.</p>
           </div>
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -176,7 +178,7 @@ export default function Landing() {
 
       {/* FAQ */}
       <section id="faq" className="mx-auto grid max-w-7xl gap-8 px-4 py-20 md:grid-cols-[1fr_1.4fr] md:px-8">
-        <h2 className="display text-[clamp(3rem,8vw,6rem)] text-forest">FAQ</h2>
+        <h2 className="display text-[clamp(3rem,8vw,6rem)] text-forest"><LiftText text="FAQ" /></h2>
         <Accordion type="single" collapsible className="w-full">
           {FAQ.map(([q, a]) => (
             <AccordionItem key={q} value={q} className="border-b-2 border-forest/20">
@@ -190,7 +192,7 @@ export default function Landing() {
       {/* CTA + FOOTER */}
       <footer className="border-t-2 border-forest bg-lime">
         <div className="mx-auto flex max-w-7xl flex-col items-start gap-6 px-4 py-14 md:flex-row md:items-end md:justify-between md:px-8">
-          <h2 className="display text-[clamp(3.4rem,10vw,8rem)] text-forest">Let's grow.</h2>
+          <h2 className="display text-[clamp(3.4rem,10vw,8rem)] text-forest"><LiftText text="Let's grow." /></h2>
           <Button asChild size="lg" className="h-14 rounded-full px-8 text-base font-bold">
             <a href="#/make">
               내 화분 만들러 가기 <ArrowRight />
