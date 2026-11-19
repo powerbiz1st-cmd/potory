@@ -11,3 +11,6 @@ assets-src/
 
 # Prisma가 생성하는 클라이언트 코드 (컨테이너 시작 시 자동 생성)
 apps/api/src/generated/
+
+# 갤러리 사진 (타사 상품 사진일 수 있어 로컬 시연용으로만 사용, 없으면 화분 그림으로 대체)
+apps/shop/public/gallery/

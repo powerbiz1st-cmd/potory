@@ -10,20 +10,43 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { DEFAULT_DESIGN, PLANT, SHAPES, encodeDesign, randomDesign, won, type Design } from '@/design'
 import { prefersReducedMotion } from '@/hooks'
 import SiteHeader from '@/components/SiteHeader'
-import PotThumb from '@/components/PotThumb'
 import LiftText from '@/components/LiftText'
+import PotThumb from '@/components/PotThumb'
 import { preloadPlant } from '@/three/ModelPlant'
 
 // 첫 화면 대표 화분: 깨끗한 화이트 실린더 + 몬스테라 (모델은 페이지 열자마자 미리 받아 둠)
 const HERO: Design = DEFAULT_DESIGN
 preloadPlant('monstera')
 
-const PRESETS: { name: string; by: string; design: Design }[] = [
-  { name: '클리어 글라스', by: '@mint_jy', design: { ...DEFAULT_DESIGN, shape: 'glass', color: '#F2F0EB' } },
-  { name: '화이트 실린더', by: '@hong.pot', design: HERO },
-  { name: '테라코타 라인', by: '@studio_k', design: { ...DEFAULT_DESIGN, shape: 'tapered', color: '#C46A43', accent: '#F2F0EB', pattern: 'stripe' } },
-  { name: '포레스트 라운드', by: '@daily_green', design: { ...DEFAULT_DESIGN, shape: 'round', color: '#2F4A3A', accent: '#A3B19A', text: 'MONSTERA', textColor: '#F2F0EB' } },
+// 갤러리: 실제 몬스테라 화분 사진 + 누르면 비슷한 디자인으로 만들기 시작
+const IMG = (n: number) => `${import.meta.env.BASE_URL}gallery/monstera-${n}.jpg`
+const PRESETS: { name: string; by: string; img: string; pos?: string; design: Design }[] = [
+  { name: '화이트 페데스탈', by: '@hong.pot', img: IMG(1), pos: '50% 78%', design: HERO },
+  { name: '샌드 아워글라스', by: '@mint_jy', img: IMG(2), design: { ...DEFAULT_DESIGN, shape: 'round', color: '#DCD3C3' } },
+  { name: '코랄 핑크', by: '@studio_k', img: IMG(3), design: { ...DEFAULT_DESIGN, shape: 'tapered', color: '#C46A43' } },
+  { name: '차콜 실린더', by: '@daily_green', img: IMG(4), design: { ...DEFAULT_DESIGN, shape: 'cylinder', color: '#2A2A2A', textColor: '#F2F0EB' } },
 ]
+
+// 사진은 로컬 시연용으로만 두고 git에는 올리지 않음 → 사진이 없는 환경(배포본 등)에선 화분 그림으로 대체
+function GalleryImage({ p }: { p: (typeof PRESETS)[number] }) {
+  const [failed, setFailed] = useState(false)
+  if (failed)
+    return (
+      <div className="flex size-full items-end justify-center bg-[#f4f4f1]">
+        <PotThumb design={p.design} className="w-[78%] transition-transform duration-500 group-hover:scale-105" />
+      </div>
+    )
+  return (
+    <img
+      src={p.img}
+      alt={`${p.name} 몬스테라 화분`}
+      loading="lazy"
+      onError={() => setFailed(true)}
+      className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+      style={{ objectPosition: p.pos ?? '50% 60%' }}
+    />
+  )
+}
 
 const STEPS = [
   { icon: Box, title: '모양 고르기', body: '실린더, 테이퍼, 라운드, 투명 글라스 중에서 골라요. 360° 돌려 보면서요.' },
@@ -159,8 +182,8 @@ export default function Landing() {
                 className="group relative flex flex-col rounded-3xl bg-paper p-4 text-forest transition-transform hover:-translate-y-1 hover:rotate-1"
                 style={{ rotate: `${[-1.5, 1, -0.5, 1.5][i]}deg` }}
               >
-                <div className="flex aspect-square items-end justify-center rounded-2xl" style={{ background: `${p.design.accent}33` }}>
-                  <PotThumb design={p.design} className="w-[62%] transition-transform group-hover:scale-105" />
+                <div className="aspect-[4/5] overflow-hidden rounded-2xl bg-muted">
+                  <GalleryImage p={p} />
                 </div>
                 <div className="mt-3 flex items-center justify-between gap-2">
                   <div>
