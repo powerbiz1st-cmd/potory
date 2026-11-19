@@ -1,0 +1,46 @@
+// POTORY 데이터 구조. Shop(주문) · Admin(제작·상태 변경) · Console(통계)이 모두 이 DB를 씁니다.
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs" // NestJS가 CommonJS로 빌드되므로 맞춰줌
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum OrderStatus {
+  RECEIVED // 주문 접수 (제작지시서 발행)
+  MAKING   // 제작 중 (성형·유약·소성)
+  SHIPPED  // 출고 완료
+  CANCELED // 취소
+}
+
+model Order {
+  id        Int          @id @default(autoincrement())
+  no        String       @unique // 고객에게 보여주는 주문번호 PT-YYMMDD-####
+  name      String
+  phone     String // 숫자만 저장 (01012345678)
+  design    Json // 고객이 만든 화분 디자인 (모양·색·패턴·문구·식물)
+  total     Int // 서버에서 다시 계산한 금액 (원)
+  status    OrderStatus  @default(RECEIVED)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  events    OrderEvent[]
+
+  @@index([phone])
+  @@index([status, createdAt])
+}
+
+// 상태가 바뀔 때마다 한 줄씩 쌓음 → 고객 조회 화면의 진행 시각, 콘솔의 리드타임 통계에 사용
+model OrderEvent {
+  id        Int         @id @default(autoincrement())
+  orderId   Int
+  order     Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status    OrderStatus
+  note      String?
+  createdAt DateTime    @default(now())
+
+  @@index([orderId])
+}

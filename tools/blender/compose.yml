@@ -1,0 +1,10 @@
+# 모델 변환 전용 (상시 실행 서비스 아님)
+services:
+  blender:
+    build: .
+    image: potory/blender:4.2
+    working_dir: /work
+    volumes:
+      - ../../assets-src:/work          # 원본 모델 (읽기)
+      - ./scripts:/scripts:ro           # 변환 스크립트
+      - ../../apps/shop/public/models:/out  # 결과 GLB

@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+
+# 3D 원본(대용량·라이선스) — 변환 결과만 apps/shop/public/models 에 커밋
+assets-src/
+
+# Prisma가 생성하는 클라이언트 코드 (컨테이너 시작 시 자동 생성)
+apps/api/src/generated/
