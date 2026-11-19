@@ -9,7 +9,6 @@ export default function App() {
   const hash = useHashRoute()
   return (
     <TooltipProvider delayDuration={200}>
-      <div className="paper" aria-hidden />
       {hash.startsWith('#/make') ? <Customizer /> : <Landing />}
       <Toaster position="top-center" />
     </TooltipProvider>

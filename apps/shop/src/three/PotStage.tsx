@@ -1,42 +1,53 @@
 import { useRef } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { ContactShadows, Float, OrbitControls } from '@react-three/drei'
+import { ContactShadows, Environment, Float, Lightformer, OrbitControls } from '@react-three/drei'
 import type { Group } from 'three'
 import Pot from './Pot'
 import type { Design } from '../design'
 import { useFontsReady } from '../hooks'
 
-// 키 큰 식물(몬스테라)은 화면 밖으로 잘리지 않게 전체를 조금 작게, 아래로 내려서 보여줌
-const frame = (d: Design) => (d.plant === 'monstera' ? { y: -1.3, s: 0.66 } : { y: -0.95, s: 1 })
+// 화분 + 몬스테라 전체가 화면에 들어오도록 크기·위치 고정
+const FRAME = { y: -1.4, s: 0.66 }
 
-// 랜딩용: 마우스 방향으로 살짝 기울어짐. 회전은 OrbitControls(autoRotate)가 맡아서 드래그로도 돌릴 수 있음
+// 랜딩용: 마우스 방향으로 아주 살짝 기울어짐. 회전은 OrbitControls(autoRotate)가 맡아서 드래그로도 돌릴 수 있음
 function Showcase({ design, fontsReady }: { design: Design; fontsReady: boolean }) {
   const ref = useRef<Group>(null)
   useFrame((state) => {
     if (!ref.current) return
-    ref.current.rotation.x += (state.pointer.y * 0.25 - ref.current.rotation.x) * 0.06
-    ref.current.rotation.z += (-state.pointer.x * 0.15 - ref.current.rotation.z) * 0.06
+    ref.current.rotation.x += (state.pointer.y * 0.08 - ref.current.rotation.x) * 0.05
+    ref.current.rotation.z += (-state.pointer.x * 0.05 - ref.current.rotation.z) * 0.05
   })
   return (
-    <Float speed={2} rotationIntensity={0.2} floatIntensity={0.8}>
-      <group ref={ref} position={[0, frame(design).y, 0]} scale={frame(design).s}>
+    <Float speed={1.2} rotationIntensity={0.05} floatIntensity={0.25}>
+      <group ref={ref} position={[0, FRAME.y, 0]} scale={FRAME.s}>
         <Pot design={design} fontsReady={fontsReady} />
       </group>
     </Float>
   )
 }
 
+// 스튜디오 조명: 외부 HDR 파일 없이 코드로 만든 반사광 (유리·유약 광택용)
+function Studio() {
+  return (
+    <Environment resolution={256} frames={1}>
+      <Lightformer form="rect" intensity={2.2} position={[0, 4, 3]} scale={[8, 3, 1]} />
+      <Lightformer form="rect" intensity={1.4} position={[-5, 1, 1]} rotation-y={Math.PI / 2} scale={[6, 4, 1]} />
+      <Lightformer form="rect" intensity={1.0} position={[5, 1, -1]} rotation-y={-Math.PI / 2} scale={[6, 4, 1]} />
+      <Lightformer form="ring" intensity={0.8} position={[0, 2, -5]} scale={3} />
+    </Environment>
+  )
+}
+
 export default function PotStage({ design, interactive = false }: { design: Design; interactive?: boolean }) {
   const fontsReady = useFontsReady()
   return (
-    <Canvas className="cursor-grab active:cursor-grabbing" shadows dpr={[1, 2]} camera={{ position: [0, 1.4, 5.2], fov: 34 }} gl={{ antialias: true, preserveDrawingBuffer: true }}>
-      <ambientLight intensity={1.1} />
-      <hemisphereLight args={['#ffffff', '#5a7a30', 0.6]} />
-      <directionalLight position={[3, 6, 4]} intensity={2.2} castShadow shadow-mapSize={[1024, 1024]} />
-      <directionalLight position={[-4, 2, -3]} intensity={0.6} />
+    <Canvas className="cursor-grab active:cursor-grabbing" shadows dpr={[1, 2]} camera={{ position: interactive ? [0, 1.4, 6.3] : [0, 1.3, 5.4], fov: 34 }} gl={{ antialias: true, preserveDrawingBuffer: true }}>
+      <Studio />
+      <ambientLight intensity={0.35} />
+      <directionalLight position={[3, 6, 4]} intensity={1.6} castShadow shadow-mapSize={[1024, 1024]} />
       {interactive ? (
         <>
-          <group position={[0, frame(design).y, 0]} scale={frame(design).s}>
+          <group position={[0, FRAME.y, 0]} scale={FRAME.s}>
             <Pot design={design} fontsReady={fontsReady} />
           </group>
           <OrbitControls enablePan={false} minDistance={3.4} maxDistance={8} target={[0, 0, 0]} minPolarAngle={0.3} maxPolarAngle={1.7} />
@@ -44,11 +55,11 @@ export default function PotStage({ design, interactive = false }: { design: Desi
       ) : (
         <>
           <Showcase design={design} fontsReady={fontsReady} />
-          {/* 줌은 끄고(페이지 스크롤 방해 방지) 드래그 회전만 허용, 손을 떼면 다시 자동 회전 */}
-          <OrbitControls enablePan={false} enableZoom={false} autoRotate autoRotateSpeed={2.4} minPolarAngle={1.1} maxPolarAngle={1.45} />
+          {/* 줌은 끄고(페이지 스크롤 방해 방지) 드래그 회전만 허용, 손을 떼면 다시 천천히 자동 회전 */}
+          <OrbitControls enablePan={false} enableZoom={false} autoRotate autoRotateSpeed={1.2} minPolarAngle={1.1} maxPolarAngle={1.45} />
         </>
       )}
-      <ContactShadows position={[0, frame(design).y - 0.1, 0]} opacity={0.35} blur={2.6} scale={7} far={3} />
+      <ContactShadows position={[0, FRAME.y - 0.01, 0]} opacity={0.28} blur={2.8} scale={6} far={3} />
     </Canvas>
   )
 }

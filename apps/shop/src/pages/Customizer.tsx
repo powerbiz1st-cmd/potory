@@ -11,16 +11,15 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 import {
-  COLORS, DEFAULT_DESIGN, PATTERNS, PLANTS, SHAPES, TEXT_MAX, TEXT_PRICE,
+  COLORS, DEFAULT_DESIGN, PATTERNS, SHAPES, TEXT_MAX, TEXT_PRICE, isDark,
   decodeDesign, encodeDesign, priceOf, randomDesign, won, type Design,
 } from '@/design'
 
 const TEXT_COLORS = [
-  { hex: '#0B4A0A', name: '포레스트' },
-  { hex: '#FFFFFF', name: '화이트' },
-  { hex: '#191919', name: '블랙' },
+  { hex: '#2F4A3A', name: '포레스트' },
+  { hex: '#F2F0EB', name: '화이트' },
+  { hex: '#2A2A2A', name: '차콜' },
   { hex: '#B8FF00', name: '라임' },
-  { hex: '#FF7A1A', name: '오렌지' },
 ]
 
 function designFromHash(): Design {
@@ -44,7 +43,7 @@ function Swatches({ value, onChange, colors, label }: { value: string; onChange:
               className="size-12 rounded-full border-2 border-forest/20 p-0 data-[state=on]:border-forest data-[state=on]:bg-transparent data-[state=on]:ring-4 data-[state=on]:ring-lime hover:bg-transparent"
               style={{ background: c.hex }}
             >
-              {value === c.hex && <Check className={cn('size-5', ['#0B4A0A', '#2F3BA8', '#191919'].includes(c.hex) ? 'text-white' : 'text-forest')} />}
+              {value === c.hex && <Check className={cn('size-5', isDark(c.hex) ? 'text-white' : 'text-forest')} />}
             </ToggleGroupItem>
           </TooltipTrigger>
           <TooltipContent>{c.name}</TooltipContent>
@@ -106,7 +105,6 @@ export default function Customizer() {
       <main className="mx-auto grid w-full max-w-7xl flex-1 grid-cols-1 gap-0 md:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] md:gap-8 md:px-8 md:py-6">
         {/* 3D 미리보기 */}
         <section className="relative h-[52dvh] min-w-0 md:sticky md:top-22 md:h-[calc(100dvh-7.5rem)] md:rounded-[2rem] md:border-2 md:border-forest md:bg-card">
-          <div className="absolute inset-x-[15%] top-[20%] bottom-[15%] rounded-full bg-lime/60 blur-3xl" aria-hidden />
           <PotStage design={design} interactive />
           <div className="absolute top-3 left-4 flex flex-col gap-1">
             <span className="display text-2xl text-forest md:text-3xl">{SHAPES.find((s) => s.id === design.shape)!.label} pot</span>
@@ -149,7 +147,6 @@ export default function Customizer() {
                 ['color', '색'],
                 ['pattern', '패턴'],
                 ['text', '문구'],
-                ['plant', '식물'],
               ].map(([v, l]) => (
                 <TabsTrigger key={v} value={v} className="rounded-full py-2 text-[15px] font-bold data-[state=active]:bg-forest data-[state=active]:text-lime">
                   {l}
@@ -163,6 +160,7 @@ export default function Customizer() {
                   {SHAPES.map((s) => (
                     <ToggleGroupItem key={s.id} value={s.id} className={cn(chip, 'flex flex-col items-start gap-0.5')}>
                       <span className="text-base font-bold">{s.label}</span>
+                      <span className="text-xs font-normal opacity-70">{s.desc}</span>
                       <span className="text-sm opacity-70">{won(s.price)}</span>
                     </ToggleGroupItem>
                   ))}
@@ -202,7 +200,7 @@ export default function Customizer() {
                   className="h-14 rounded-2xl border-2 border-forest bg-card px-4 font-kr-display text-xl text-forest md:text-xl"
                 />
                 <div className="flex flex-wrap gap-2">
-                  {['MY POT', '초록이', 'HELLO', '쑥쑥', 'GROW!'].map((t) => (
+                  {['MONSTERA', 'HOME', 'GREEN', '초록', 'LEAF'].map((t) => (
                     <Button key={t} variant="outline" size="sm" className="rounded-full border-forest/30 bg-transparent" onClick={() => set('text', t)}>
                       {t}
                     </Button>
@@ -217,21 +215,6 @@ export default function Customizer() {
               </Section>
             </TabsContent>
 
-            <TabsContent value="plant">
-              <Section title="함께 받을 식물">
-                <ToggleGroup type="single" value={design.plant} onValueChange={(v) => v && set('plant', v as Design['plant'])} spacing={2} className="flex w-full flex-col">
-                  {PLANTS.map((p) => (
-                    <ToggleGroupItem key={p.id} value={p.id} className={cn(chip, 'flex w-full items-center justify-between')}>
-                      <span className="flex flex-col items-start">
-                        <span className="text-base font-bold">{p.label}</span>
-                        <span className="text-sm font-normal opacity-70">{p.desc}</span>
-                      </span>
-                      <span className="font-bold">{p.price ? `+${won(p.price)}` : '기본'}</span>
-                    </ToggleGroupItem>
-                  ))}
-                </ToggleGroup>
-              </Section>
-            </TabsContent>
           </Tabs>
 
           {/* 데스크톱: 패널 안 가격 요약 */}
@@ -267,7 +250,7 @@ export function PriceLines({ price }: { price: ReturnType<typeof priceOf> }) {
     ['화분', price.shape],
     ['패턴', price.pattern],
     ['문구 각인', price.text],
-    ['식물', price.plant],
+    ['몬스테라 (기본 포함)', price.plant],
   ]
   return (
     <dl className="space-y-1.5 text-forest">

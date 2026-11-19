@@ -7,34 +7,34 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
-import { DEFAULT_DESIGN, SHAPES, encodeDesign, randomDesign, won, type Design } from '@/design'
+import { DEFAULT_DESIGN, PLANT, SHAPES, encodeDesign, randomDesign, won, type Design } from '@/design'
 import { prefersReducedMotion } from '@/hooks'
 import SiteHeader from '@/components/SiteHeader'
 import PotThumb from '@/components/PotThumb'
 import LiftText from '@/components/LiftText'
 import { preloadPlant } from '@/three/ModelPlant'
 
-// 첫 화면 대표 화분: 시연 임팩트용으로 몬스테라 (모델은 페이지 열자마자 미리 받아 둠)
-const HERO: Design = { ...DEFAULT_DESIGN, plant: 'monstera' }
+// 첫 화면 대표 화분: 깨끗한 화이트 실린더 + 몬스테라 (모델은 페이지 열자마자 미리 받아 둠)
+const HERO: Design = DEFAULT_DESIGN
 preloadPlant('monstera')
 
 const PRESETS: { name: string; by: string; design: Design }[] = [
-  { name: '라임 소다', by: '@mint_jy', design: { ...DEFAULT_DESIGN, shape: 'round', color: '#B8FF00', accent: '#0B4A0A', pattern: 'dots', text: '쑥쑥', textColor: '#0B4A0A', plant: 'succulent' } },
-  { name: '선셋 몬스테라', by: '@hong.pot', design: HERO },
-  { name: '블루 체크', by: '@studio_k', design: { ...DEFAULT_DESIGN, shape: 'square', color: '#4FC8FF', accent: '#2F3BA8', pattern: 'check', text: 'HELLO', textColor: '#FFFFFF', plant: 'flower' } },
-  { name: '크림 웨이브', by: '@daily_green', design: { ...DEFAULT_DESIGN, shape: 'cylinder', color: '#F4EEDC', accent: '#FF6F7D', pattern: 'wave', text: '봄이', textColor: '#0B4A0A', plant: 'flower' } },
+  { name: '클리어 글라스', by: '@mint_jy', design: { ...DEFAULT_DESIGN, shape: 'glass', color: '#F2F0EB' } },
+  { name: '화이트 실린더', by: '@hong.pot', design: HERO },
+  { name: '테라코타 라인', by: '@studio_k', design: { ...DEFAULT_DESIGN, shape: 'tapered', color: '#C46A43', accent: '#F2F0EB', pattern: 'stripe' } },
+  { name: '포레스트 라운드', by: '@daily_green', design: { ...DEFAULT_DESIGN, shape: 'round', color: '#2F4A3A', accent: '#A3B19A', text: 'MONSTERA', textColor: '#F2F0EB' } },
 ]
 
 const STEPS = [
-  { icon: Box, title: '모양 고르기', body: '클래식, 동글이, 원통, 네모 중에서 골라요. 360° 돌려 보면서요.' },
-  { icon: Palette, title: '마음대로 꾸미기', body: '색 8가지, 패턴 5가지에 이름이나 문구를 새겨요. 최대 10자까지 돼요.' },
+  { icon: Box, title: '모양 고르기', body: '실린더, 테이퍼, 라운드, 투명 글라스 중에서 골라요. 360° 돌려 보면서요.' },
+  { icon: Palette, title: '마음대로 꾸미기', body: '유약 색 8가지, 패턴 5가지에 이름이나 짧은 문구를 새겨요.' },
   { icon: Truck, title: '주문하고 지켜보기', body: '주문하면 바로 제작지시서가 나가요. 제작부터 출고까지 단계마다 알려드려요.' },
 ]
 
 const FAQ = [
   ['얼마나 걸려요?', '주문하고 3~5 영업일이면 출고돼요. 문구를 넣어도 같아요.'],
   ['화면에서 본 색이랑 똑같이 나와요?', '도자기 유약이라서 조금 차이가 날 수 있어요. 받아 보고 마음에 안 들면 한 번 무료로 다시 만들어 드려요.'],
-  ['식물도 같이 와요?', '새싹 키트(바질)는 기본으로 들어가요. 다육이나 꽃 키트로 바꿀 수도 있어요.'],
+  ['식물도 같이 와요?', '모든 화분에 몬스테라가 심어져서 와요. 받자마자 바로 놓기만 하면 돼요.'],
   ['디자인을 친구한테 보낼 수 있어요?', '만들기 화면의 "공유" 버튼을 누르면 링크가 복사돼요. 친구가 그 링크를 열면 같은 화분에서 시작해요.'],
 ]
 
@@ -92,15 +92,14 @@ export default function Landing() {
                 지금 만들기 <ArrowRight />
               </a>
             </Button>
-            <Button size="lg" variant="outline" className="h-14 rounded-full border-2 border-forest bg-transparent px-6 text-base font-bold" onClick={() => setDesign({ ...randomDesign(), plant: 'monstera' })}>
+            <Button size="lg" variant="outline" className="h-14 rounded-full border-2 border-forest bg-transparent px-6 text-base font-bold" onClick={() => setDesign(randomDesign())}>
               <Shuffle /> 랜덤 화분
             </Button>
           </div>
-          <p className="mt-4 font-hand text-xl text-forest/70">* {won(minPrice)}부터, 새싹 키트 포함</p>
+          <p className="mt-4 font-hand text-xl text-forest/70">* {won(minPrice + PLANT.price)}부터, 몬스테라 포함</p>
         </div>
 
         <div className="relative aspect-square w-full md:aspect-[4/5]">
-          <div className="absolute inset-[8%] rounded-full bg-lime/70 blur-3xl" aria-hidden />
           <div className="absolute inset-0">
             <PotStage design={design} />
           </div>

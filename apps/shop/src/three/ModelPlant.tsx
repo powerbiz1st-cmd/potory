@@ -32,8 +32,8 @@ export default function ModelPlant({ id, radius }: { id: ModelPlantId; radius: n
     })
     return c
   }, [scene])
-  // 원본 비율 그대로면 화분 높이의 2배가 넘어 화면을 벗어나서, 식물 높이 ≈ 화분 높이 1.2배로 줄임
-  return <primitive object={obj} scale={radius * 0.57} />
+  // 식물이 주인공: 식물 높이 ≈ 화분 높이의 2배 남짓
+  return <primitive object={obj} scale={radius * 1.0} />
 }
 
 export function preloadPlant(id: ModelPlantId) {

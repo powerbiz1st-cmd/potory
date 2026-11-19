@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import PotThumb from '@/components/PotThumb'
 import { PriceLines } from '@/pages/Customizer'
-import { COLORS, PATTERNS, PLANTS, SHAPES, priceOf, type Design } from '@/design'
+import { COLORS, PATTERNS, PLANT, SHAPES, priceOf, type Design } from '@/design'
 import { createOrder } from '@/orders'
 
 // 주문서 → POST /orders. 결제는 시연용이라 생략
@@ -44,7 +44,7 @@ export default function OrderSheet({ open, onOpenChange, design }: { open: boole
     ['색', `${COLORS.find((c) => c.hex === design.color)?.name ?? design.color} / ${COLORS.find((c) => c.hex === design.accent)?.name ?? design.accent}`],
     ['패턴', PATTERNS.find((p) => p.id === design.pattern)!.label],
     ['문구', design.text.trim() || '없음'],
-    ['식물', PLANTS.find((p) => p.id === design.plant)!.label],
+    ['식물', PLANT.label],
   ]
 
   return (

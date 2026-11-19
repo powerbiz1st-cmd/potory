@@ -2,66 +2,46 @@ import { useId } from 'react'
 import type { Design } from '@/design'
 
 // 갤러리·주문서용 가벼운 2D 화분 그림 (3D 캔버스를 여러 개 띄우지 않기 위해 SVG 사용)
+// 3D와 같은 비율: 낮은 화분 + 큰 몬스테라
 const BODY: Record<Design['shape'], string> = {
-  classic: 'M14 40 H86 L76 112 H24 Z',
-  round: 'M22 40 H78 C98 62 96 100 74 112 H26 C4 100 2 62 22 40 Z',
-  cylinder: 'M20 40 H80 V112 H20 Z',
-  square: 'M10 40 H90 V112 H10 Z',
+  cylinder: 'M24 70 H76 V108 Q76 114 70 114 H30 Q24 114 24 108 Z',
+  tapered: 'M22 70 H78 L72 108 Q71 114 65 114 H35 Q29 114 28 108 Z',
+  round: 'M28 70 H72 C86 80 86 104 70 114 H30 C14 104 14 80 28 70 Z',
+  glass: 'M25 66 H75 V108 Q75 114 69 114 H31 Q25 114 25 108 Z',
 }
 
 function Pattern({ d, id }: { d: Design; id: string }) {
   const a = d.accent
   switch (d.pattern) {
     case 'stripe':
-      return <pattern id={id} width="10" height="14" patternUnits="userSpaceOnUse"><rect y="3" width="10" height="5" fill={a} /></pattern>
+      return <pattern id={id} width="10" height="6" patternUnits="userSpaceOnUse"><rect y="2" width="10" height="1.2" fill={a} /></pattern>
     case 'dots':
-      return <pattern id={id} width="12" height="12" patternUnits="userSpaceOnUse"><circle cx="6" cy="6" r="2.2" fill={a} /></pattern>
+      return <pattern id={id} width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="3.5" cy="3.5" r="1" fill={a} /></pattern>
     case 'wave':
-      return <pattern id={id} width="20" height="16" patternUnits="userSpaceOnUse"><path d="M0 8 Q5 3 10 8 T20 8" stroke={a} strokeWidth="3" fill="none" /></pattern>
+      return <pattern id={id} width="14" height="8" patternUnits="userSpaceOnUse"><path d="M0 4 Q3.5 2 7 4 T14 4" stroke={a} strokeWidth="1" fill="none" /></pattern>
     case 'check':
-      return <pattern id={id} width="16" height="16" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill={a} /><rect x="8" y="8" width="8" height="8" fill={a} /></pattern>
+      return <pattern id={id} width="8" height="8" patternUnits="userSpaceOnUse"><rect width="4" height="4" fill={a} /><rect x="4" y="4" width="4" height="4" fill={a} /></pattern>
     default:
       return null
   }
 }
 
-function Leaves({ plant }: { plant: Design['plant'] }) {
-  if (plant === 'flower')
-    return (
-      <g>
-        <path d="M50 40 V8" stroke="#1F7A12" strokeWidth="3" />
-        <ellipse cx="60" cy="26" rx="9" ry="4" fill="#3DBE29" transform="rotate(-30 60 26)" />
-        {Array.from({ length: 8 }).map((_, i) => (
-          <ellipse key={i} cx="50" cy="0" rx="4" ry="7" fill="#fff" transform={`rotate(${i * 45} 50 8) translate(0 -1)`} />
-        ))}
-        <circle cx="50" cy="8" r="4.5" fill="#FFC20E" />
-      </g>
-    )
-  if (plant === 'monstera')
-    return (
-      <g stroke="#1F7A12" strokeWidth="2" fill="#2E8B1F">
-        <path d="M50 40 Q46 24 30 14" fill="none" />
-        <path d="M50 40 Q54 22 70 10" fill="none" />
-        <path d="M50 40 V4" fill="none" />
-        <path d="M30 14 C14 12 10 -2 24 -4 C34 -4 38 6 30 14 Z" />
-        <path d="M70 10 C86 8 92 -6 78 -8 C66 -8 62 2 70 10 Z" />
-        <path d="M50 4 C38 2 40 -12 50 -12 C60 -12 62 2 50 4 Z" />
-      </g>
-    )
-  if (plant === 'succulent')
-    return (
-      <g fill="#6CC24A">
-        {[-50, -25, 0, 25, 50].map((r) => (
-          <path key={r} d="M50 40 Q44 22 50 12 Q56 22 50 40 Z" transform={`rotate(${r} 50 40)`} />
-        ))}
-        <path d="M50 40 Q46 28 50 22 Q54 28 50 40 Z" fill="#B6E36A" />
-      </g>
-    )
+// 몬스테라 실루엣 (갈라진 큰 잎 몇 장)
+function Monstera() {
+  const leaf = (x: number, y: number, r: number, rot: number, k: number) => (
+    <g key={k} transform={`translate(${x} ${y}) rotate(${rot}) scale(${r})`}>
+      <path d="M0 0 C-14 -4 -16 -24 0 -30 C16 -24 14 -4 0 0 Z" fill="#2E6B2A" />
+      <path d="M0 -2 V-28 M0 -10 L-9 -16 M0 -16 L-9 -23 M0 -10 L9 -16 M0 -16 L9 -23" stroke="#FFFFFF" strokeWidth="1.6" strokeLinecap="round" />
+    </g>
+  )
   return (
     <g>
-      <path d="M50 40 V20" stroke="#1F7A12" strokeWidth="3" />
-      <ellipse cx="40" cy="18" rx="11" ry="5" fill="#3DBE29" transform="rotate(-25 40 18)" />
-      <ellipse cx="60" cy="16" rx="11" ry="5" fill="#3DBE29" transform="rotate(25 60 16)" />
+      <path d="M50 70 Q44 48 26 30 M50 70 Q52 40 50 18 M50 70 Q58 46 76 30 M50 70 Q40 56 18 52 M50 70 Q62 56 84 54" stroke="#3B6E2E" strokeWidth="1.6" fill="none" />
+      {leaf(26, 34, 0.75, -50, 1)}
+      {leaf(50, 22, 0.85, 0, 2)}
+      {leaf(76, 34, 0.75, 50, 3)}
+      {leaf(18, 56, 0.6, -80, 4)}
+      {leaf(84, 58, 0.6, 80, 5)}
     </g>
   )
 }
@@ -69,25 +49,37 @@ function Leaves({ plant }: { plant: Design['plant'] }) {
 export default function PotThumb({ design, className }: { design: Design; className?: string }) {
   const id = useId().replace(/:/g, '')
   const text = design.text.trim()
+  const glass = design.shape === 'glass'
   return (
-    <svg viewBox="-4 -6 108 122" className={className} role="img" aria-label={`${design.text || '화분'} 미리보기`}>
+    <svg viewBox="0 -12 100 128" className={className} role="img" aria-label={`${design.text || '화분'} 미리보기`}>
       <defs>
         <Pattern d={design} id={`p${id}`} />
         <clipPath id={`c${id}`}>
           <path d={BODY[design.shape]} />
         </clipPath>
       </defs>
-      <Leaves plant={design.plant} />
-      <rect x="8" y="34" width="84" height="8" rx="3" fill="#4A2E1B" />
-      <path d={BODY[design.shape]} fill={design.color} stroke="#0B4A0A" strokeWidth="2.5" strokeLinejoin="round" />
-      {design.pattern !== 'none' && <rect x="0" y="40" width="100" height="80" fill={`url(#p${id})`} clipPath={`url(#c${id})`} />}
-      {text && (
+      <Monstera />
+      {glass ? (
         <>
-          {design.pattern !== 'none' && <rect x={50 - Math.min(text.length, 6) * 5 - 6} y="64" width={Math.min(text.length, 6) * 10 + 12} height="22" rx="5" fill={design.color} />}
-          <text x="50" y="80" textAnchor="middle" fontFamily='"Black Han Sans", Anton, sans-serif' fontSize={text.length > 6 ? 10 : 15} fill={design.textColor}>
-            {text}
-          </text>
+          {/* 유리: 자갈층 + 흙이 비쳐 보이게 */}
+          <g clipPath={`url(#c${id})`}>
+            <rect x="0" y="72" width="100" height="22" fill="#3B2A1E" />
+            <rect x="0" y="94" width="100" height="20" fill="#D9D1C1" />
+          </g>
+          <path d={BODY.glass} fill={design.color} fillOpacity="0.25" stroke="#9AA59A" strokeWidth="1.2" />
+          <path d="M30 74 V106" stroke="#FFFFFF" strokeOpacity="0.8" strokeWidth="2" strokeLinecap="round" />
         </>
+      ) : (
+        <>
+          <rect x="26" y="68" width="48" height="4" rx="2" fill="#3B2A1E" />
+          <path d={BODY[design.shape]} fill={design.color} stroke="#00000022" strokeWidth="1" />
+        </>
+      )}
+      {design.pattern !== 'none' && <rect x="0" y="66" width="100" height="50" fill={`url(#p${id})`} clipPath={`url(#c${id})`} />}
+      {text && (
+        <text x="50" y="96" textAnchor="middle" fontFamily='Anton, "Black Han Sans", sans-serif' fontSize={text.length > 7 ? 6 : 8} letterSpacing="1" fill={design.textColor}>
+          {text}
+        </text>
       )}
     </svg>
   )
