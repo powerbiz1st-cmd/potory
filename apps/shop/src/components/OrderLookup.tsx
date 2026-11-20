@@ -57,7 +57,7 @@ function OrderResult({ order }: { order: Order }) {
 
 function OrderRow({ o, onClick }: { o: Order; onClick: () => void }) {
   return (
-    <button onClick={onClick} className="flex w-full items-center gap-3 rounded-2xl border-2 border-forest/15 bg-card p-2 pr-4 text-left hover:border-forest">
+    <button onClick={onClick} className="flex w-full items-center gap-3 rounded-2xl border-[1.5px] border-forest/15 bg-card p-2 pr-4 text-left hover:border-forest">
       <span className="grid size-14 shrink-0 place-items-end rounded-xl" style={{ background: `${o.design.accent}33` }}>
         <PotThumb design={o.design} className="w-full" />
       </span>
@@ -168,7 +168,7 @@ export default function OrderLookup({ compact = false }: { compact?: boolean }) 
           ) : (
             <>
               <Tabs defaultValue="no" className="gap-4" onValueChange={() => setError(null)}>
-                <TabsList className="h-auto w-full rounded-full border-2 border-forest bg-card p-1">
+                <TabsList className="h-auto w-full rounded-full border-[1.5px] border-forest bg-card p-1">
                   <TabsTrigger value="no" className="rounded-full py-2 font-bold data-[state=active]:bg-forest data-[state=active]:text-lime">
                     주문번호로
                   </TabsTrigger>
@@ -178,7 +178,7 @@ export default function OrderLookup({ compact = false }: { compact?: boolean }) 
                 </TabsList>
                 <TabsContent value="no">
                   <form onSubmit={searchNo} className="flex gap-2">
-                    <Input value={no} onChange={(e) => setNo(e.target.value)} placeholder="PT-261119-1234" aria-label="주문번호" className="h-12 rounded-full border-2 border-forest bg-card px-5 font-semibold uppercase" />
+                    <Input value={no} onChange={(e) => setNo(e.target.value)} placeholder="PT-261119-1234" aria-label="주문번호" className="h-12 rounded-full border-[1.5px] border-forest bg-card px-5 font-semibold uppercase" />
                     <Button type="submit" size="icon" className="size-12 shrink-0 rounded-full" aria-label="조회" disabled={loading}>
                       {loading ? <Loader2 className="animate-spin" /> : <Search />}
                     </Button>
@@ -186,9 +186,9 @@ export default function OrderLookup({ compact = false }: { compact?: boolean }) 
                 </TabsContent>
                 <TabsContent value="phone">
                   <form onSubmit={searchPhone} className="space-y-2">
-                    <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="주문한 분 이름" aria-label="이름" className="h-12 rounded-full border-2 border-forest bg-card px-5" />
+                    <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="주문한 분 이름" aria-label="이름" className="h-12 rounded-full border-[1.5px] border-forest bg-card px-5" />
                     <div className="flex gap-2">
-                      <Input value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" placeholder="010-0000-0000" aria-label="휴대폰 번호" className="h-12 rounded-full border-2 border-forest bg-card px-5" />
+                      <Input value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" placeholder="010-0000-0000" aria-label="휴대폰 번호" className="h-12 rounded-full border-[1.5px] border-forest bg-card px-5" />
                       <Button type="submit" size="icon" className="size-12 shrink-0 rounded-full" aria-label="찾기" disabled={loading}>
                         {loading ? <Loader2 className="animate-spin" /> : <Search />}
                       </Button>

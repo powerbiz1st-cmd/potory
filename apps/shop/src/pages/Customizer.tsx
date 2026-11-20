@@ -29,7 +29,7 @@ function designFromHash(): Design {
 
 // 칩 모양 선택 버튼 공통 스타일
 const chip =
-  'h-auto rounded-2xl border-2 border-forest/15 bg-card px-4 py-3 text-forest data-[state=on]:border-forest data-[state=on]:bg-lime data-[state=on]:text-forest data-[state=on]:shadow-[3px_3px_0_var(--forest)] hover:bg-lime/40 hover:text-forest'
+  'h-auto rounded-2xl border-[1.5px] border-forest/15 bg-card px-4 py-3 text-forest data-[state=on]:border-forest data-[state=on]:bg-lime data-[state=on]:text-forest data-[state=on]:shadow-[3px_3px_0_var(--forest)] hover:bg-lime/40 hover:text-forest'
 
 function Swatches({ value, onChange, colors, label }: { value: string; onChange: (v: string) => void; colors: { hex: string; name: string }[]; label: string }) {
   return (
@@ -40,7 +40,7 @@ function Swatches({ value, onChange, colors, label }: { value: string; onChange:
             <ToggleGroupItem
               value={c.hex}
               aria-label={c.name}
-              className="size-12 rounded-full border-2 border-forest/20 p-0 data-[state=on]:border-forest data-[state=on]:bg-transparent data-[state=on]:ring-4 data-[state=on]:ring-lime hover:bg-transparent"
+              className="size-12 rounded-full border-[1.5px] border-forest/20 p-0 data-[state=on]:border-forest data-[state=on]:bg-transparent data-[state=on]:ring-4 data-[state=on]:ring-lime hover:bg-transparent"
               style={{ background: c.hex }}
             >
               {value === c.hex && <Check className={cn('size-5', isDark(c.hex) ? 'text-white' : 'text-forest')} />}
@@ -113,7 +113,7 @@ export default function Customizer() {
           <div className="absolute top-3 right-3 flex gap-2">
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button size="icon" variant="outline" className="rounded-full border-2 border-forest bg-paper" onClick={() => setDesign(randomDesign())} aria-label="랜덤 디자인">
+                <Button size="icon" variant="outline" className="rounded-full border-[1.5px] border-forest bg-paper" onClick={() => setDesign(randomDesign())} aria-label="랜덤 디자인">
                   <Shuffle />
                 </Button>
               </TooltipTrigger>
@@ -121,7 +121,7 @@ export default function Customizer() {
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button size="icon" variant="outline" className="rounded-full border-2 border-forest bg-paper" onClick={() => setDesign(DEFAULT_DESIGN)} aria-label="처음 디자인으로">
+                <Button size="icon" variant="outline" className="rounded-full border-[1.5px] border-forest bg-paper" onClick={() => setDesign(DEFAULT_DESIGN)} aria-label="처음 디자인으로">
                   <RotateCcw />
                 </Button>
               </TooltipTrigger>
@@ -141,7 +141,7 @@ export default function Customizer() {
         {/* 옵션 패널 */}
         <section className="relative z-10 min-w-0 -mt-6 rounded-t-[2rem] border-t-2 border-forest bg-paper px-4 pt-5 pb-32 md:mt-0 md:rounded-none md:border-0 md:bg-transparent md:px-0 md:pt-0 md:pb-10">
           <Tabs defaultValue="shape" className="gap-5">
-            <TabsList className="h-auto w-full rounded-full border-2 border-forest bg-card p-1">
+            <TabsList className="h-auto w-full rounded-full border-[1.5px] border-forest bg-card p-1">
               {[
                 ['shape', '모양'],
                 ['color', '색'],
@@ -197,7 +197,7 @@ export default function Customizer() {
                   maxLength={TEXT_MAX}
                   onChange={(e) => set('text', e.target.value)}
                   placeholder="이름이나 짧은 문구"
-                  className="h-14 rounded-2xl border-2 border-forest bg-card px-4 font-kr-display text-xl text-forest md:text-xl"
+                  className="h-14 rounded-2xl border-[1.5px] border-forest bg-card px-4 font-kr-display text-xl text-forest md:text-xl"
                 />
                 <div className="flex flex-wrap gap-2">
                   {['MONSTERA', 'HOME', 'GREEN', '초록', 'LEAF'].map((t) => (

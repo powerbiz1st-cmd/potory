@@ -115,7 +115,7 @@ export default function Landing() {
                 지금 만들기 <ArrowRight />
               </a>
             </Button>
-            <Button size="lg" variant="outline" className="h-14 rounded-full border-2 border-forest bg-transparent px-6 text-base font-bold" onClick={() => setDesign(randomDesign())}>
+            <Button size="lg" variant="outline" className="h-14 rounded-full border-[1.5px] border-forest bg-transparent px-6 text-base font-bold" onClick={() => setDesign(randomDesign())}>
               <Shuffle /> 랜덤 화분
             </Button>
           </div>

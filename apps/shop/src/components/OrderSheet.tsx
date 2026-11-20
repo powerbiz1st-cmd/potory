@@ -88,11 +88,11 @@ export default function OrderSheet({ open, onOpenChange, design }: { open: boole
             <form id="order" onSubmit={submit} className="space-y-4">
               <label className="block space-y-1.5">
                 <span className="text-sm font-bold text-forest">받는 분</span>
-                <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="홍길동" className="h-12 rounded-xl border-2 border-forest/40 bg-card" />
+                <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="홍길동" className="h-12 rounded-xl border-[1.5px] border-forest/40 bg-card" />
               </label>
               <label className="block space-y-1.5">
                 <span className="text-sm font-bold text-forest">연락처</span>
-                <Input value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" placeholder="010-0000-0000" className="h-12 rounded-xl border-2 border-forest/40 bg-card" />
+                <Input value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" placeholder="010-0000-0000" className="h-12 rounded-xl border-[1.5px] border-forest/40 bg-card" />
               </label>
               <Separator className="bg-forest/20" />
               <PriceLines price={price} />
