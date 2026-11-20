@@ -45,6 +45,21 @@ docker compose up -d
 | `GET` | `/admin/console/system` | 콘솔: API·DB·호스트 상태 (메모리, DB 응답시간·크기·연결 수) |
 | `GET` | `/health` | 서버 · DB 상태 |
 
+## DB 직접 보기
+
+- **DB 프로그램 (DBeaver, pgAdmin 등)**: 호스트 `127.0.0.1` · 포트 `5432` · DB `potory` · 사용자 `potory` · 비밀번호는 `.env`의 `POSTGRES_PASSWORD`. 이 PC에서만 접속됩니다.
+- **웹으로 (설치 없이)**: `docker compose --profile tools up -d studio` → http://localhost:5555 (Prisma Studio)
+- 테이블: `Order`(주문) · `OrderEvent`(상태 변경 기록) · `StockItem`(재고). SQL에서는 `SELECT * FROM "Order";`처럼 큰따옴표가 필요합니다.
+
+## 배포 (시연 당일)
+
+```powershell
+powershell -ExecutionPolicy Bypass -File toolsdemostart-demo.ps1   # 터널 열기 + Pages 재배포 + 링크 출력
+powershell -ExecutionPolicy Bypass -File toolsdemostop-demo.ps1    # 끝나면 터널 닫기
+```
+
+화면은 GitHub Pages(고정 주소), API는 Cloudflare 임시 터널(켤 때마다 주소가 바뀜 → 스크립트가 자동으로 다시 빌드).
+
 ## 모니터링 · 알림 · 백업
 
 | 서비스 | 역할 |

@@ -3,13 +3,15 @@
 #  3) 터널 주소를 GitHub 저장소 변수 API_URL 에 저장  4) Pages 다시 빌드·배포  5) 접속 링크 출력
 # 실행: custom-pot 폴더에서  powershell -ExecutionPolicy Bypass -File tools\demo\start-demo.ps1
 $ErrorActionPreference = 'Stop'
+# docker 진행 메시지(stderr)를 PowerShell이 오류로 오해하지 않게 cmd로 실행
+function Quiet([string]$c) { cmd /c "$c >nul 2>&1" }
 Set-Location (Join-Path $PSScriptRoot '..\..')
 
 Write-Host "`n[1/5] Docker 서비스 켜는 중..." -ForegroundColor Cyan
-docker compose up -d | Out-Null
+Quiet 'docker compose up -d'
 
 Write-Host "[2/5] Cloudflare 임시 터널 여는 중..." -ForegroundColor Cyan
-docker compose --profile tunnel up -d --force-recreate tunnel | Out-Null
+Quiet 'docker compose --profile tunnel up -d --force-recreate tunnel'
 $url = $null
 for ($i = 0; $i -lt 40 -and -not $url; $i++) {
   Start-Sleep 2

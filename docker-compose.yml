@@ -16,8 +16,9 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
-    # 개발 중 DB 툴로 보고 싶으면 주석 해제
-    # ports: ["5432:5432"]
+    # DB 프로그램(DBeaver 등)으로 직접 보기용. 127.0.0.1 → 이 PC에서만 접속 가능 (같은 와이파이·외부에선 불가)
+    ports:
+      - "127.0.0.1:5432:5432"
 
   api:
     restart: unless-stopped
@@ -94,6 +95,26 @@ services:
     command: tunnel --no-autoupdate --url http://api:3000
     depends_on:
       - api
+
+  # ---- DB 들여다보기 (필요할 때만): docker compose --profile tools up -d studio → http://localhost:5555 ----
+  studio:
+    image: node:22-alpine
+    profiles: ["tools"]
+    working_dir: /app
+    # Studio는 컨테이너 안(localhost)에서만 열려서, 작은 중계기로 PC(5555)에서 접속 가능하게 함
+    command: >
+      sh -c "npx prisma studio --port 5556 --browser none &
+      node -e \"require('net').createServer(c => { const s = require('net').connect(5556, '127.0.0.1'); c.pipe(s).pipe(c); s.on('error', () => c.destroy()); c.on('error', () => s.destroy()) }).listen(5555, '0.0.0.0')\""
+    ports:
+      - "5555:5555"
+    environment:
+      DATABASE_URL: postgresql://potory:${POSTGRES_PASSWORD:-potory_dev}@db:5432/potory
+    volumes:
+      - ./apps/api:/app
+      - api_node_modules:/app/node_modules
+    depends_on:
+      db:
+        condition: service_healthy
 
   # ---- 7. 모니터링 · 알림 · 백업 ----
   watchdog:
