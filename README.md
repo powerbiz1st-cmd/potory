@@ -49,7 +49,7 @@ docker compose up -d
 
 | 서비스 | 역할 |
 |---|---|
-| `watchdog` (:3100) | API·Shop·Admin·Console을 10초마다 바깥에서 확인. 2번 연속 실패하면 **장애 메일**, 살아나면 **복구 메일**(중단 시간 포함). 콘솔이 `/status`를 읽어 표시 |
+| `watchdog` (:3100) | API·Shop·Admin·Console을 5초마다 바깥에서 확인. 2번 연속 실패하면 **장애 메일**, 살아나면 **복구 메일**(중단 시간 포함). 콘솔이 `/status`를 읽어 표시 |
 | `mailpit` (:8025) | 가짜 메일함. 메일 계정을 설정하기 전에도 알림을 여기서 확인 |
 | `backup` | 켜질 때 1번 + 24시간마다 DB를 `./backups/*.sql.gz`로 저장, 최근 7개 보관 (git 제외) |
 
@@ -67,7 +67,7 @@ SMTP_PASS=구글 앱 비밀번호 16자리
 ALERT_TO=받는주소@example.com
 ```
 
-Gmail은 계정에 2단계 인증을 켠 뒤 "앱 비밀번호"를 발급해 `SMTP_PASS`에 넣습니다 (일반 로그인 비밀번호는 안 됨). 저장 후 `docker compose up -d watchdog`.
+Gmail은 계정에 2단계 인증을 켠 뒤 "앱 비밀번호"를 발급해 `SMTP_PASS`에 넣습니다 (일반 로그인 비밀번호는 안 됨). 저장 후 꼭 `docker compose up -d watchdog` 로 감시 컨테이너를 다시 띄워야 적용됩니다. 켜질 때 메일 서버 로그인을 확인해서 콘솔·로그에 결과가 나옵니다.
 
 ### 장애 시연 (운영 콘솔 "장애 시연" 패널)
 

@@ -11,7 +11,7 @@ import nodemailer from 'nodemailer'
 
 const env = (k, d = '') => (process.env[k] ?? '').trim() || d
 
-const INTERVAL_MS = Number(env('CHECK_INTERVAL_SEC', '10')) * 1000
+const INTERVAL_MS = Number(env('CHECK_INTERVAL_SEC', '5')) * 1000 // 5초 × 2번 실패 = 약 10초 안에 장애 판단
 const TIMEOUT_MS = 4000
 const FAILS_TO_DOWN = Number(env('FAILS_TO_DOWN', '2')) // 연속 n번 실패해야 장애로 판단 (순간 끊김 무시)
 const DATA_DIR = env('DATA_DIR', '/data')
@@ -43,6 +43,19 @@ const transporter = nodemailer.createTransport(
 const FROM = env('ALERT_FROM', env('SMTP_USER', 'potory-watchdog@localhost'))
 const TO = env('ALERT_TO', 'ops@potory.local')
 const mailMode = realSmtp ? `실제 메일 (${env('SMTP_HOST')})` : '가짜 메일함 (Mailpit)'
+
+// 켜질 때 메일 서버 로그인까지 미리 확인 (앱 비밀번호가 틀리면 여기서 바로 알 수 있음)
+let mailCheck = { ok: null, error: null }
+transporter
+  .verify()
+  .then(() => {
+    mailCheck = { ok: true, error: null }
+    console.log(`[mail] 메일 서버 연결·로그인 확인됨: ${mailMode}`)
+  })
+  .catch((e) => {
+    mailCheck = { ok: false, error: String(e?.message ?? e) }
+    console.error(`[mail] 메일 서버 확인 실패: ${mailCheck.error}`)
+  })
 
 // ---- 상태 저장 (재시작해도 기록 유지) ----
 fs.mkdirSync(DATA_DIR, { recursive: true })
@@ -162,7 +175,7 @@ http
         JSON.stringify({
           at: new Date().toISOString(),
           intervalSec: INTERVAL_MS / 1000,
-          mail: { mode: mailMode, to: TO },
+          mail: { mode: mailMode, to: TO, ready: mailCheck.ok, error: mailCheck.error },
           targets: TARGETS.map((t) => ({ id: t.id, name: t.name, ...state[t.id] })),
           incidents: store.incidents.slice(0, 20),
           mails: store.mails.slice(0, 10),

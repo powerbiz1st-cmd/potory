@@ -101,7 +101,7 @@ services:
       SMTP_PASS: ${SMTP_PASS:-}
       ALERT_FROM: ${ALERT_FROM:-}
       ALERT_TO: ${ALERT_TO:-}
-      CHECK_INTERVAL_SEC: ${CHECK_INTERVAL_SEC:-10}
+      CHECK_INTERVAL_SEC: ${CHECK_INTERVAL_SEC:-5}
     volumes:
       - ./apps/watchdog:/app
       - watchdog_node_modules:/app/node_modules
