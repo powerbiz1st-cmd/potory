@@ -75,6 +75,7 @@ powershell -ExecutionPolicy Bypass -File tools\demo\stop-demo.ps1           # �
 ```
 
 화면은 GitHub Pages(고정 주소), API는 Cloudflare 임시 터널(켤 때마다 주소가 바뀜 → 스크립트가 자동으로 다시 빌드).
+평소에는 둘 다 내려 둡니다: `stop-demo.ps1`이 터널을 닫고 Pages도 내림(`-KeepPages`로 화면만 남기기 가능), `start-demo.ps1`이 Pages를 다시 켜고 배포합니다. 배포는 시연 스크립트로만 실행됩니다(push 자동 배포 없음).
 
 ## 모니터링 · 알림 · 백업
 

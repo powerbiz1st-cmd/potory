@@ -38,6 +38,12 @@ if (-not $ok) { throw "터널로 API에 접속이 안 돼요: $url/health" }
 Write-Host "      정상 응답" -ForegroundColor Green
 
 Write-Host "[4/5] GitHub Pages 다시 배포 중 (1~2분)..." -ForegroundColor Cyan
+# 시연이 끝나고 Pages를 내려 뒀다면 다시 켬 (Actions 배포 방식)
+cmd /c "gh api repos/{owner}/{repo}/pages >nul 2>&1"
+if ($LASTEXITCODE -ne 0) {
+  Write-Host "      꺼져 있던 GitHub Pages를 다시 켜는 중..." -ForegroundColor DarkGray
+  gh api -X POST "repos/{owner}/{repo}/pages" -f build_type=workflow | Out-Null
+}
 gh variable set API_URL --body $url | Out-Null
 gh workflow run deploy-pages.yml | Out-Null
 Start-Sleep 5
