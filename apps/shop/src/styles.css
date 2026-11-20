@@ -102,6 +102,16 @@
   text-transform: uppercase;
 }
 
+/* 시안 B "스튜디오 오브젝트": 넓은 그로테스크 */
+.studio-wide {
+  font-family: "Archivo", "Pretendard Variable", sans-serif;
+  font-weight: 800;
+  font-stretch: 125%;
+  font-variation-settings: "wdth" 125;
+  letter-spacing: -0.04em;
+  word-spacing: 0.12em;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .marquee {
     animation: none;
