@@ -66,8 +66,22 @@ services:
       - CHOKIDAR_USEPOLLING=true
       - VITE_API_URL=${VITE_API_URL:-}
 
+  console:
+    image: node:22-alpine
+    working_dir: /apps/console
+    command: sh -c "npm install --no-audit --no-fund && npm run dev -- --host 0.0.0.0 --port 5175"
+    ports:
+      - "5175:5175"
+    volumes:
+      - ./apps:/apps
+      - console_node_modules:/apps/console/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - VITE_API_URL=${VITE_API_URL:-}
+
 volumes:
   db_data:
   admin_node_modules:
+  console_node_modules:
   api_node_modules:
   shop_node_modules:

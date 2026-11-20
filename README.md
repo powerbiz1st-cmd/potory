@@ -10,7 +10,7 @@
 | `apps/shop` | 고객용 3D 커스터마이저 (React · Vite · React Three Fiber · shadcn/ui · Tailwind v4) | ✅ |
 | `apps/api` | 주문 API (NestJS 12 · Prisma 7 · PostgreSQL 17) | ✅ |
 | `apps/admin` | 관리자 백오피스 — 실시간 주문 목록, 상태 변경, 제작지시서 인쇄, 재고 (React · shadcn/ui) | ✅ |
-| `apps/console` | 운영 콘솔 (통계 · 서버 상태 · 장애 알림) | 예정 |
+| `apps/console` | 운영 콘솔 — 서버·DB 상태, 장애 감지·복구 기록, 매출·주문 통계 (다크 대시보드) | ✅ |
 
 ## 실행
 
@@ -23,6 +23,7 @@ docker compose up -d
 
 - Shop: http://localhost:5173
 - Admin: http://localhost:5174 (`.env` 의 `ADMIN_TOKEN` 으로 로그인)
+- Console: http://localhost:5175 (같은 토큰)
 - API 상태: http://localhost:3000/health
 
 같은 와이파이의 휴대폰에서는 `http://<PC의 IP>:5173` 으로 접속하면 됩니다.

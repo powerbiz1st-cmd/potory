@@ -1,0 +1,103 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* POTORY Ops Console — 관제 화면 느낌의 다크 테마 (브랜드 라임 포인트) */
+:root {
+  --radius: 0.75rem;
+  --lime: #b8ff00;
+  --forest: #0b4a0a;
+  --ok: #4ade80;
+  --warn: #fbbf24;
+  --bad: #f87171;
+
+  --background: #0c110d;
+  --foreground: #e8ede9;
+  --card: #141b16;
+  --card-foreground: #e8ede9;
+  --popover: #141b16;
+  --popover-foreground: #e8ede9;
+  --primary: var(--lime);
+  --primary-foreground: #0c110d;
+  --secondary: #1d2620;
+  --secondary-foreground: #e8ede9;
+  --muted: #1a221c;
+  --muted-foreground: #8a968d;
+  --accent: #1f2a22;
+  --accent-foreground: var(--lime);
+  --destructive: var(--bad);
+  --border: #243028;
+  --input: #2a372e;
+  --ring: var(--lime);
+}
+
+@theme inline {
+  --font-sans: "Pretendard Variable", Pretendard, system-ui, sans-serif;
+  --font-display: "Anton", "Black Han Sans", sans-serif;
+
+  --color-lime: var(--lime);
+  --color-forest: var(--forest);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-bad: var(--bad);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+}
+
+.display {
+  font-family: var(--font-display);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+/* 상태 표시등이 은은하게 깜빡임 */
+@keyframes pulse-dot {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 currentColor;
+  }
+  50% {
+    box-shadow: 0 0 0 5px transparent;
+  }
+}
+.dot-live {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .dot-live {
+    animation: none;
+  }
+}
