@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common'
+import { BadRequestException, Body, Controller, Get, Headers, Param, Patch, Post, Query, UseGuards } from '@nestjs/common'
 import { OrdersService } from './orders.service'
 import { CreateOrderDto, LookupDto, UpdateStatusDto } from './dto'
 import { AdminGuard } from './admin.guard'
@@ -11,8 +11,8 @@ export class OrdersController {
 
   // 주문하기
   @Post()
-  create(@Body() dto: CreateOrderDto) {
-    return this.orders.create(dto)
+  create(@Body() dto: CreateOrderDto, @Headers('idempotency-key') key?: string) {
+    return this.orders.create(dto, key)
   }
 
   // 이름 + 휴대폰 번호로 내 주문 찾기 (번호를 URL에 남기지 않으려고 POST)

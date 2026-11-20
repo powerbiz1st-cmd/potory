@@ -61,8 +61,9 @@ function rememberNo(no: string) {
 export const myOrderCount = () => myOrderNos().length
 
 // ---- API ----
-export async function createOrder(input: { name: string; phone: string; design: Design }) {
-  const order = await api<Order>('/orders', { method: 'POST', body: JSON.stringify(input) })
+// key: 주문 시도 1번마다 고유값 (Idempotency-Key). 같은 키로 두 번 와도 서버는 주문을 하나만 만듦
+export async function createOrder(input: { name: string; phone: string; design: Design }, key?: string) {
+  const order = await api<Order>('/orders', { method: 'POST', body: JSON.stringify(input), headers: key ? { 'Idempotency-Key': key } : undefined })
   rememberNo(order.no)
   return order
 }

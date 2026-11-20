@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { PartyPopper } from 'lucide-react'
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
@@ -10,21 +10,40 @@ import { PriceLines } from '@/pages/Customizer'
 import { COLORS, PATTERNS, PLANT, SHAPES, priceOf, type Design } from '@/design'
 import { createOrder } from '@/orders'
 
+// 주문 1번 시도마다 고유한 키 → 같은 요청이 두 번 가도 서버가 주문을 하나만 만듦
+const newKey = () => (globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`)
+
+type Props = {
+  open: boolean
+  onOpenChange: (v: boolean) => void
+  design: Design
+  onMakeAnother: () => void // "하나 더 만들기" → 만들기 화면을 처음 상태로
+}
+
 // 주문서 → POST /orders. 결제는 시연용이라 생략
-export default function OrderSheet({ open, onOpenChange, design }: { open: boolean; onOpenChange: (v: boolean) => void; design: Design }) {
+export default function OrderSheet({ open, onOpenChange, design, onMakeAnother }: Props) {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [done, setDone] = useState<string | null>(null)
   const [sending, setSending] = useState(false)
+  const attemptKey = useRef(newKey())
   const price = priceOf(design)
   const valid = name.trim().length > 0 && /^01[016789]-?\d{3,4}-?\d{4}$/.test(phone.trim())
 
+  // 주문서를 새로 열 때만 완료 화면을 비움 (닫히는 도중에 주문 폼이 다시 그려지지 않게)
+  useEffect(() => {
+    if (open) {
+      setDone(null)
+      attemptKey.current = newKey()
+    }
+  }, [open])
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!valid || sending) return
+    if (!valid || sending || done) return
     setSending(true)
     try {
-      const order = await createOrder({ name: name.trim(), phone: phone.trim(), design })
+      const order = await createOrder({ name: name.trim(), phone: phone.trim(), design }, attemptKey.current)
       setDone(order.no)
       toast.success('주문이 접수됐어요', { description: `주문번호 ${order.no}` })
     } catch (err) {
@@ -34,9 +53,10 @@ export default function OrderSheet({ open, onOpenChange, design }: { open: boole
     }
   }
 
-  const close = (v: boolean) => {
-    onOpenChange(v)
-    if (!v) setDone(null)
+  const makeAnother = (e: React.MouseEvent) => {
+    e.preventDefault()
+    onOpenChange(false)
+    onMakeAnother()
   }
 
   const summary = [
@@ -48,7 +68,7 @@ export default function OrderSheet({ open, onOpenChange, design }: { open: boole
   ]
 
   return (
-    <Sheet open={open} onOpenChange={close}>
+    <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full gap-0 overflow-y-auto border-l-2 border-forest bg-paper sm:max-w-md">
         <SheetHeader className="px-6 pt-6">
           <SheetTitle className="display text-4xl text-forest">{done ? 'Thank you!' : 'Order'}</SheetTitle>
@@ -101,12 +121,14 @@ export default function OrderSheet({ open, onOpenChange, design }: { open: boole
         </div>
 
         <SheetFooter className="mt-auto border-t-2 border-forest/10 p-6">
+          {/* key를 달리해서 두 버튼이 같은 DOM을 재사용하지 않게 함
+              (재사용되면 "하나 더 만들기" 클릭이 주문 버튼 클릭으로 처리돼 같은 주문이 한 번 더 들어감) */}
           {done ? (
-            <Button size="lg" className="h-14 rounded-full text-base font-bold" onClick={() => close(false)}>
+            <Button key="again" type="button" size="lg" className="h-14 rounded-full text-base font-bold" onClick={makeAnother}>
               하나 더 만들기
             </Button>
           ) : (
-            <Button form="order" type="submit" size="lg" disabled={!valid || sending} className="h-14 rounded-full text-base font-bold">
+            <Button key="submit" form="order" type="submit" size="lg" disabled={!valid || sending} className="h-14 rounded-full text-base font-bold">
               {sending ? '주문 보내는 중…' : '결제 없이 데모 주문하기'}
             </Button>
           )}

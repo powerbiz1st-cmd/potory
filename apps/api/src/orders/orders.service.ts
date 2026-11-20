@@ -51,25 +51,41 @@ export class OrdersService {
     throw new Error('order number exhausted')
   }
 
-  async create(dto: CreateOrderDto) {
+  async create(dto: CreateOrderDto, requestKey?: string) {
+    const key = requestKey?.trim().slice(0, 100) || undefined
+    // 같은 주문 시도(같은 키)가 다시 오면 새로 만들지 않고 이미 만든 주문을 돌려줌 (버튼 두 번 눌림·재전송 대비)
+    if (key) {
+      const existing = await this.prisma.order.findUnique({ where: { requestKey: key }, include: withEvents })
+      if (existing) return toPublic(existing)
+    }
     const no = await this.newOrderNo()
-    // 주문 저장 + 재고 차감을 한 번에 (둘 중 하나만 되는 일이 없게)
-    const order = await this.prisma.$transaction(async (tx) => {
-      const created = await tx.order.create({
-        data: {
-          no,
-          name: dto.name.trim(),
-          phone: digits(dto.phone),
-          design: { ...dto.design, text: dto.design.text.trim() },
-          total: priceOf(dto.design),
-          events: { create: { status: 'RECEIVED' } },
-        },
-        include: withEvents,
+    try {
+      // 주문 저장 + 재고 차감을 한 번에 (둘 중 하나만 되는 일이 없게)
+      const order = await this.prisma.$transaction(async (tx) => {
+        const created = await tx.order.create({
+          data: {
+            no,
+            requestKey: key,
+            name: dto.name.trim(),
+            phone: digits(dto.phone),
+            design: { ...dto.design, text: dto.design.text.trim() },
+            total: priceOf(dto.design),
+            events: { create: { status: 'RECEIVED' } },
+          },
+          include: withEvents,
+        })
+        await this.stock.consume(tx, dto.design, 1)
+        return created
       })
-      await this.stock.consume(tx, dto.design, 1)
-      return created
-    })
-    return toPublic(order)
+      return toPublic(order)
+    } catch (e) {
+      // 거의 동시에 같은 키가 두 번 들어온 경우: 먼저 만들어진 주문을 돌려줌
+      if (key && e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+        const existing = await this.prisma.order.findUnique({ where: { requestKey: key }, include: withEvents })
+        if (existing) return toPublic(existing)
+      }
+      throw e
+    }
   }
 
   async findPublic(no: string) {

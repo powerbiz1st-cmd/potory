@@ -68,6 +68,14 @@ function Section({ title, hint, children }: { title: string; hint?: string; chil
 export default function Customizer() {
   const [design, setDesign] = useState<Design>(designFromHash)
   const [orderOpen, setOrderOpen] = useState(false)
+  const [tab, setTab] = useState('shape')
+
+  // 주문 완료 후 "하나 더 만들기" → 새 디자인으로 만들기 화면 처음부터
+  const startOver = () => {
+    setDesign(DEFAULT_DESIGN)
+    setTab('shape')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
   const price = useMemo(() => priceOf(design), [design])
   const set = <K extends keyof Design>(k: K, v: Design[K]) => setDesign((d) => ({ ...d, [k]: v }))
 
@@ -140,7 +148,7 @@ export default function Customizer() {
 
         {/* 옵션 패널 */}
         <section className="relative z-10 min-w-0 -mt-6 rounded-t-[2rem] border-t-2 border-forest bg-paper px-4 pt-5 pb-32 md:mt-0 md:rounded-none md:border-0 md:bg-transparent md:px-0 md:pt-0 md:pb-10">
-          <Tabs defaultValue="shape" className="gap-5">
+          <Tabs value={tab} onValueChange={setTab} className="gap-5">
             <TabsList className="h-auto w-full rounded-full border-[1.5px] border-forest bg-card p-1">
               {[
                 ['shape', '모양'],
@@ -240,7 +248,7 @@ export default function Customizer() {
         </div>
       </div>
 
-      <OrderSheet open={orderOpen} onOpenChange={setOrderOpen} design={design} />
+      <OrderSheet open={orderOpen} onOpenChange={setOrderOpen} design={design} onMakeAnother={startOver} />
     </div>
   )
 }

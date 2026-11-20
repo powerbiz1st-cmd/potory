@@ -20,6 +20,7 @@ enum OrderStatus {
 model Order {
   id        Int          @id @default(autoincrement())
   no        String       @unique // 고객에게 보여주는 주문번호 PT-YYMMDD-####
+  requestKey String?     @unique // 주문 시도 키(Idempotency-Key): 같은 요청이 두 번 와도 주문 1건만
   name      String
   phone     String // 숫자만 저장 (01012345678)
   design    Json // 고객이 만든 화분 디자인 (모양·색·패턴·문구·식물)
