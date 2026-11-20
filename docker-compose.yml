@@ -85,6 +85,16 @@ services:
       - CHOKIDAR_USEPOLLING=true
       - VITE_API_URL=${VITE_API_URL:-}
 
+  # ---- 8. 배포: API를 외부에 여는 Cloudflare 임시 터널 ----
+  # 평소엔 안 켜짐. tools/demo/start-demo.ps1 이 켜고, 주소(https://xxxx.trycloudflare.com)를 Pages 빌드에 넘김
+  tunnel:
+    image: cloudflare/cloudflared:2026.10.7
+    profiles: ["tunnel"]
+    restart: unless-stopped
+    command: tunnel --no-autoupdate --url http://api:3000
+    depends_on:
+      - api
+
   # ---- 7. 모니터링 · 알림 · 백업 ----
   watchdog:
     # 각 서비스를 10초마다 확인, 장애/복구 시 메일 (설정은 .env 의 SMTP_* / ALERT_TO)

@@ -1,0 +1,79 @@
+# 화면 3개(Shop · Admin · Console)를 빌드해서 GitHub Pages에 올림
+#   Shop    → https://<계정>.github.io/potory/
+#   Admin   → https://<계정>.github.io/potory/admin/
+#   Console → https://<계정>.github.io/potory/console/
+# API 주소는 저장소 변수 API_URL (tools/demo/start-demo.ps1 이 터널 주소로 자동 설정)
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths: ['apps/shop/**', 'apps/admin/**', 'apps/console/**', '.github/workflows/deploy-pages.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      VITE_API_URL: ${{ vars.API_URL }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/*/package-lock.json
+
+      - name: API 주소 확인
+        run: |
+          if [ -z "$VITE_API_URL" ]; then
+            echo "::warning::저장소 변수 API_URL 이 비어 있어요. 화면은 올라가지만 주문·조회가 안 돼요. (tools/demo/start-demo.ps1 로 설정)"
+          else
+            echo "API → $VITE_API_URL"
+          fi
+
+      - name: Shop 빌드
+        working-directory: apps/shop
+        run: npm ci --no-audit --no-fund && npx vite build
+
+      - name: Admin 빌드
+        working-directory: apps/admin
+        run: npm ci --no-audit --no-fund && npx vite build
+
+      - name: Console 빌드
+        working-directory: apps/console
+        run: npm ci --no-audit --no-fund && npx vite build
+
+      - name: 한 사이트로 합치기
+        run: |
+          mkdir -p site
+          cp -r apps/shop/dist/. site/
+          cp -r apps/admin/dist site/admin
+          cp -r apps/console/dist site/console
+          touch site/.nojekyll
+          du -sh site
+
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

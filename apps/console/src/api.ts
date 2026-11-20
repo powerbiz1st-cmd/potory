@@ -102,13 +102,21 @@ export interface WatchStatus {
   backup: { file: string; at: string; sizeKb: number; count: number } | null
 }
 
+// 1순위: API가 대신 받아다 주는 경로 (배포 시 외부에 열린 건 API 하나뿐)
+// 2순위: 같은 네트워크에서 watchdog 직접 (API가 죽어 있을 때도 로컬에선 볼 수 있게)
 export async function watchStatus(): Promise<WatchStatus> {
-  const res = await fetch(`${WATCHDOG_URL}/status`, { signal: AbortSignal.timeout(3000) })
+  try {
+    const res = await fetch(`${API_URL}/admin/console/watch`, { headers: { 'x-admin-token': getToken() ?? '' }, signal: AbortSignal.timeout(3000) })
+    if (res.ok) return res.json()
+  } catch {
+    /* API가 응답 없음 → 아래로 */
+  }
+  const res = await fetch(`${WATCHDOG_URL}/status`, { signal: AbortSignal.timeout(2000) })
   if (!res.ok) throw new Error(`watchdog ${res.status}`)
   return res.json()
 }
 
-export const won =(n: number) => n.toLocaleString('ko-KR') + '원'
+export const won = (n: number) => n.toLocaleString('ko-KR') + '원'
 export const fmtUptime = (s: number) => {
   const d = Math.floor(s / 86400)
   const h = Math.floor((s % 86400) / 3600)
