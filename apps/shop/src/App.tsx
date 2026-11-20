@@ -1,7 +1,7 @@
 import Landing from './pages/Landing'
 import Customizer from './pages/Customizer'
 import LandingStudio from './pages/LandingStudio'
-import LandingNatural from './pages/LandingNatural'
+import LandingSheet from './pages/LandingSheet'
 import { useHashRoute } from './hooks'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
@@ -11,7 +11,7 @@ export default function App() {
   const hash = useHashRoute()
   return (
     <TooltipProvider delayDuration={200}>
-      {hash.startsWith('#/make') ? <Customizer /> : hash.startsWith('#/studio') ? <LandingStudio /> : hash.startsWith('#/natural') ? <LandingNatural /> : <Landing />}
+      {hash.startsWith('#/make') ? <Customizer /> : hash.startsWith('#/studio') ? <LandingStudio /> : hash.startsWith('#/sheet') ? <LandingSheet /> : <Landing />}
       <Toaster position="top-center" />
     </TooltipProvider>
   )

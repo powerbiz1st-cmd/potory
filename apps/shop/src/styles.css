@@ -112,39 +112,7 @@
   word-spacing: 0.12em;
 }
 
-/* 시안 C "흙과 빛": 세리프 + 고정폭 라벨, 나뭇잎 그림자, 도장 배지 */
-.nat-serif {
-  font-family: "Fraunces", "Gowun Batang", serif;
-  font-optical-sizing: auto;
-}
-.nat-kr {
-  font-family: "Gowun Batang", "Fraunces", serif;
-}
-.nat-mono {
-  font-family: "IBM Plex Mono", ui-monospace, monospace;
-  letter-spacing: 0.02em;
-}
-@keyframes leaf-sway {
-  0% { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); }
-  50% { transform: translate3d(-1.5%, 1%, 0) rotate(-2deg) scale(1.02); }
-  100% { transform: translate3d(1%, -0.5%, 0) rotate(1.5deg) scale(1); }
-}
-.leaf-shadow {
-  animation: leaf-sway 9s ease-in-out infinite alternate;
-  transform-origin: 80% 0%;
-}
-@keyframes spin-slow {
-  to { transform: rotate(360deg); }
-}
-.spin-slow {
-  animation: spin-slow 22s linear infinite;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .leaf-shadow,
-  .spin-slow {
-    animation: none;
-  }
   .marquee {
     animation: none;
   }
