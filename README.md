@@ -54,9 +54,10 @@ docker compose up -d
 ## 배포 (시연 당일)
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File toolsdemostart-demo.ps1 -Reset   # 데모 데이터로 초기화 + 터널 + Pages 재배포 + 링크
+powershell -ExecutionPolicy Bypass -File tools\demo\start-demo.ps1 -Reset   # 데모 데이터로 초기화 + 터널 + Pages 재배포 + 링크
+powershell -ExecutionPolicy Bypass -File tools\demo\reset-demo.ps1          # 초기화만 (직전 DB는 backups/before-reset-*.sql.gz)
+powershell -ExecutionPolicy Bypass -File tools\demo\stop-demo.ps1           # 끝나면 터널 닫기
 powershell -ExecutionPolicy Bypass -File toolsdemoeset-demo.ps1          # 초기화만 (직전 DB는 backups/before-reset-*.sql.gz)
-powershell -ExecutionPolicy Bypass -File toolsdemostop-demo.ps1    # 끝나면 터널 닫기
 ```
 
 화면은 GitHub Pages(고정 주소), API는 Cloudflare 임시 터널(켤 때마다 주소가 바뀜 → 스크립트가 자동으로 다시 빌드).
