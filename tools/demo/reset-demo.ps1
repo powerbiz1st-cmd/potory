@@ -29,10 +29,10 @@ $out = cmd /c "docker compose exec -T db psql -U potory -d potory -v ON_ERROR_ST
 if ($LASTEXITCODE -ne 0) { $out; throw '데모 데이터를 넣지 못했어요. (DB는 트랜잭션이라 바뀌지 않았어요)' }
 $out | ForEach-Object { "      $_" }
 
-Write-Host '[3/4] API 다시 켜기 (장애 시연 스위치 초기화)...' -ForegroundColor Cyan
+Write-Host '[3/4] API 1·2호기 다시 켜기 (장애 시연 스위치 초기화)...' -ForegroundColor Cyan
 # 감시를 먼저 멈춰야 API 재시작이 "장애"로 잡혀 실제 메일이 가지 않음
 Quiet 'docker compose stop watchdog'
-Quiet 'docker compose restart api'
+Quiet 'docker compose restart api-1 api-2'
 
 Write-Host '[4/4] 감시 기록·알림 메일함 비우는 중...' -ForegroundColor Cyan
 Quiet 'docker compose run --rm --no-deps --entrypoint sh watchdog -c "rm -f /data/incidents.json"'

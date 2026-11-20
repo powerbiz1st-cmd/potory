@@ -6,6 +6,7 @@ SET client_encoding = 'UTF8';
 BEGIN;
 
 TRUNCATE "OrderEvent", "Order" RESTART IDENTITY CASCADE;
+DELETE FROM "ChaosFlag"; -- 장애 시연 스위치도 모두 끔 (이중화된 API가 공유하는 상태)
 
 -- (분 전, 이름, 끝번호, 모양, 바탕색, 포인트색, 패턴, 문구, 글자색, 상태)
 CREATE TEMP TABLE demo(seq serial, mins_ago int, name text, tail text, shape text, color text, accent text, pattern text, txt text, text_color text, status "OrderStatus") ON COMMIT DROP;

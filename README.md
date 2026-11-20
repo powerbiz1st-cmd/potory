@@ -8,7 +8,7 @@
 | 앱 | 설명 | 상태 |
 |---|---|---|
 | `apps/shop` | 고객용 3D 커스터마이저 (React · Vite · React Three Fiber · shadcn/ui · Tailwind v4) | ✅ |
-| `apps/api` | 주문 API (NestJS 12 · Prisma 7 · PostgreSQL 17) | ✅ |
+| `apps/api` | 주문 API (NestJS 12 · Prisma 7 · PostgreSQL 17) — **2대 이중화 + 로드밸런서(Caddy)** | ✅ |
 | `apps/admin` | 관리자 백오피스 — 실시간 주문 목록, 상태 변경, 제작지시서 인쇄, 재고 (React · shadcn/ui) | ✅ |
 | `apps/console` | 운영 콘솔 — 서버·DB 상태, 장애 감지·복구 기록, 매출·주문 통계 (다크 대시보드) | ✅ |
 
@@ -44,6 +44,21 @@ docker compose up -d
 | `GET` | `/admin/console/stats?days=14` | 콘솔: 날짜별 주문·매출, 상태별·모양별, 리드타임, 재고 부족 |
 | `GET` | `/admin/console/system` | 콘솔: API·DB·호스트 상태 (메모리, DB 응답시간·크기·연결 수) |
 | `GET` | `/health` | 서버 · DB 상태 |
+
+## API 이중화
+
+```
+화면 · 터널 · 감시 ──▶ api:3000 (Caddy 로드밸런서) ──┬──▶ api-1 ─┐
+                                                     └──▶ api-2 ─┴──▶ PostgreSQL
+```
+
+- 같은 이미지(`apps/api/Dockerfile`)로 두 대 실행, 요청은 번갈아 분배 (`tools/lb/Caddyfile`)
+- 한 대가 죽으면: 연결 실패 요청은 **다른 한 대로 즉시 재시도**(최대 5초) → 고객은 실패를 못 느낌, 죽은 서버는 10초간 제외, 2초마다 생존 확인 후 복귀
+- 주문은 `Idempotency-Key`로 중복 방지 → 재시도돼도 주문은 1건
+- 장애 시연 스위치는 DB(`ChaosFlag`)에 두어 두 대가 같은 상태를 봄. 응답 헤더 `X-Instance`로 처리한 호기 확인
+- 콘솔 "API 이중화" 카드: 1·2호기 상태, 최근 요청 분배, 호기별 **중지**(20초 응답 중지 → 자동 재시작)
+- 확인 결과: 1호기 중지 중 주문 144건 전송 → **실패 0건**, 그동안 2호기가 49건 연속 처리, 장애·복구 메일 수신
+- API 코드를 바꾼 뒤: `docker compose up -d --build api-1 api-2`
 
 ## DB 직접 보기
 

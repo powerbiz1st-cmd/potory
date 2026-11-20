@@ -78,7 +78,7 @@ export async function chaosState(): Promise<ChaosState> {
   return res.json()
 }
 
-export async function chaosRun(action: ChaosAction, body: Record<string, number> = {}) {
+export async function chaosRun(action: ChaosAction, body: Record<string, number | string> = {}) {
   const res = await fetch(`${API_URL}/admin/chaos/${action}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-admin-token': getToken() ?? '' },
@@ -122,4 +122,15 @@ export const fmtUptime = (s: number) => {
   const h = Math.floor((s % 86400) / 3600)
   const m = Math.floor((s % 3600) / 60)
   return d ? `${d}일 ${h}시간` : h ? `${h}시간 ${m}분` : `${m}분 ${s % 60}초`
+}
+
+// 로드밸런서를 거쳐 "지금 이 요청을 몇 호기가 받았는지" (DB 안 보는 가벼운 확인)
+export async function whoServes(): Promise<string | null> {
+  try {
+    const res = await fetch(`${API_URL}/health/live`, { signal: AbortSignal.timeout(2500), cache: 'no-store' })
+    if (!res.ok) return null
+    return ((await res.json()) as { instance?: string }).instance ?? null
+  } catch {
+    return null
+  }
 }

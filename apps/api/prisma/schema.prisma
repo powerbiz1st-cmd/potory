@@ -54,3 +54,10 @@ model StockItem {
   threshold Int      @default(5) // 이 수량 이하면 "부족" 경고
   updatedAt DateTime @updatedAt
 }
+
+// 장애 시연 스위치 (한 줄, id=1). 이중화된 API 두 대가 1초마다 읽어 같은 상태를 유지
+model ChaosFlag {
+  id        Int      @id @default(1)
+  data      Json
+  updatedAt DateTime @updatedAt
+}

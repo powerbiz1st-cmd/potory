@@ -10,6 +10,7 @@ import { AuthError, DownError, api, fmtUptime, won, type Stats, type SystemInfo 
 import { DailyBars, HBars, Sparkline } from '@/charts'
 import WatchPanel from '@/WatchPanel'
 import ChaosPanel from '@/ChaosPanel'
+import HaPanel from '@/HaPanel'
 
 const POLL_MS = 5000
 const HISTORY = 30 // 응답시간 그래프에 남길 측정 횟수 (5초 × 30 = 2분 30초)
@@ -176,7 +177,7 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
         <section className="grid gap-3 md:grid-cols-3">
           <StatusCard
             icon={Server}
-            title="API 서버"
+            title="API (로드밸런서)"
             level={apiLevel}
             main={lastApi != null ? `${lastApi}ms` : '—'}
             sub={sys ? `가동 ${fmtUptime(sys.api.uptimeSec)} · 메모리 ${sys.api.memoryMb}MB · Node ${sys.api.node}` : '확인 중…'}
@@ -200,6 +201,9 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
             sub={sys ? `CPU ${sys.host.cpus}코어 · 부하 ${sys.host.load1} · 여유 ${(sys.host.memFreeMb / 1024).toFixed(1)}GB` : '확인 중…'}
           />
         </section>
+
+        {/* API 이중화: 1호기·2호기 상태와 요청 분배 */}
+        <HaPanel />
 
         {/* 장애 시연 버튼 (CHAOS_ENABLED=true 일 때만 동작) */}
         <ChaosPanel />

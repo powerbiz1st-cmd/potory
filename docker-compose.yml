@@ -20,24 +20,44 @@ services:
     ports:
       - "127.0.0.1:5432:5432"
 
+  # ---- API 이중화: 같은 이미지로 2대 + 앞단 로드밸런서 ----
+  # 화면·터널·감시는 모두 "api:3000"(로드밸런서)으로 접속 → api-1 / api-2 에 나눠 보냄
+  # API 코드를 바꾸면: docker compose up -d --build api-1 api-2
   api:
+    image: caddy:2.11.7-alpine
     restart: unless-stopped
-    image: node:22-alpine
-    working_dir: /app
-    # 설치 → Prisma 클라이언트 생성 → DB 마이그레이션 적용 → 개발 서버(파일 바뀌면 자동 재시작)
-    command: sh -c "npm install --no-audit --no-fund && npx prisma generate && npx prisma migrate deploy && npm run start:dev"
     ports:
       - "3000:3000"
+    volumes:
+      - ./tools/lb/Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on:
+      - api-1
+      - api-2
+
+  api-1:
+    build: ./apps/api
+    image: potory/api:local
+    restart: unless-stopped
     environment:
       DATABASE_URL: postgresql://potory:${POSTGRES_PASSWORD:-potory_dev}@db:5432/potory
       ADMIN_TOKEN: ${ADMIN_TOKEN:-}
       CORS_ORIGINS: ${CORS_ORIGINS:-}
       CHAOS_ENABLED: ${CHAOS_ENABLED:-false} # 장애 시연 버튼 (시연용 PC에서만 true)
-      TSC_WATCHFILE: DynamicPriorityPolling # Docker + Windows 볼륨에서 파일 변경 감지
-      TSC_WATCHDIRECTORY: DynamicPriorityPolling
-    volumes:
-      - ./apps/api:/app
-      - api_node_modules:/app/node_modules
+      INSTANCE_ID: api-1
+    depends_on:
+      db:
+        condition: service_healthy
+
+  api-2:
+    build: ./apps/api
+    image: potory/api:local
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://potory:${POSTGRES_PASSWORD:-potory_dev}@db:5432/potory
+      ADMIN_TOKEN: ${ADMIN_TOKEN:-}
+      CORS_ORIGINS: ${CORS_ORIGINS:-}
+      CHAOS_ENABLED: ${CHAOS_ENABLED:-false} # 장애 시연 버튼 (시연용 PC에서만 true)
+      INSTANCE_ID: api-2
     depends_on:
       db:
         condition: service_healthy

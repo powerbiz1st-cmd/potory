@@ -8,11 +8,11 @@ import { chaosRun, chaosState, type ChaosAction, type ChaosState } from '@/api'
 
 const SEC = 30 // 각 시연이 유지되는 시간 (지나면 저절로 정상화)
 
-const ACTIONS: { id: ChaosAction; n: string; title: string; desc: string; icon: typeof Hourglass; body?: Record<string, number>; danger?: boolean }[] = [
+const ACTIONS: { id: ChaosAction; n: string; title: string; desc: string; icon: typeof Hourglass; body?: Record<string, number | string>; danger?: boolean }[] = [
   { id: 'slow', n: '①', title: '응답 지연', desc: `${SEC}초간 모든 요청 1.5초 지연 → 노란불`, icon: Hourglass, body: { sec: SEC, ms: 1500 } },
   { id: 'db-down', n: '②', title: 'DB 장애', desc: `${SEC}초간 DB 연결 끊김 → 주문 실패 · 장애 메일`, icon: Database, body: { sec: SEC } },
   { id: 'errors', n: '③', title: '일부 요청 실패', desc: `${SEC}초간 주문·조회의 절반이 서버 오류`, icon: FlaskConical, body: { sec: SEC, rate: 0.5 } },
-  { id: 'crash', n: '④', title: '서버 다운', desc: 'API 강제 종료 → 자동 재시작 · 장애/복구 메일', icon: ServerCrash, danger: true },
+  { id: 'crash', n: '④', title: 'API 1대 다운', desc: '1호기 20초 중지 → 2호기가 주문 처리 · 자동 재시작', icon: ServerCrash, body: { instance: 'api-1' }, danger: true },
   { id: 'stock-low', n: '⑤', title: '재고 소진', desc: '몬스테라 재고 2개로 → 부족 경고', icon: PackageX },
 ]
 

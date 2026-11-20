@@ -1,0 +1,26 @@
+# POTORY API 로드밸런서 (Caddy)
+# 화면·터널·감시는 모두 http://api:3000 으로 오고, 여기서 api-1 / api-2 에 나눠 보냄
+{
+	admin off
+	auto_https off
+}
+
+:3000 {
+	reverse_proxy api-1:3000 api-2:3000 {
+		# 번갈아 보내기
+		lb_policy round_robin
+
+		# 한 대에 연결이 안 되면 5초 동안 0.25초 간격으로 다른 쪽에 다시 시도 → 고객은 실패를 못 느낌
+		lb_try_duration 5s
+		lb_try_interval 250ms
+
+		# 실패한 서버는 10초 동안 빼 둠 (수동 헬스체크)
+		fail_duration 10s
+		max_fails 1
+
+		# 2초마다 각 서버 생존 확인 (능동 헬스체크, DB는 안 봄)
+		health_uri /health/live
+		health_interval 2s
+		health_timeout 2s
+	}
+}

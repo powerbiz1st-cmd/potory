@@ -1,8 +1,9 @@
 import { Body, Controller, ForbiddenException, Get, HttpCode, Post, UseGuards } from '@nestjs/common'
-import { IsInt, IsNumber, IsOptional, Max, Min } from 'class-validator'
+import { IsIn, IsInt, IsNumber, IsOptional, Max, Min } from 'class-validator'
 import { AdminGuard } from '../orders/admin.guard'
 import { PrismaService } from '../prisma/prisma.service'
-import { chaos, chaosEnabled, chaosSnapshot, resetChaos } from './chaos.state'
+import { INSTANCE, chaosEnabled, chaosSnapshot } from './chaos.state'
+import { ChaosSync } from './chaos.sync'
 
 class ChaosDto {
   @IsOptional() @IsInt() @Min(5) @Max(300) sec?: number // 몇 초 동안 (기본 30초, 지나면 저절로 꺼짐)
@@ -10,11 +11,19 @@ class ChaosDto {
   @IsOptional() @IsNumber() @Min(0.1) @Max(1) rate?: number // 실패 비율
 }
 
+class CrashDto {
+  @IsOptional() @IsIn(['api-1', 'api-2']) instance?: string // 내릴 호기 (없으면 이 요청을 받은 서버)
+}
+
 // 운영 콘솔 "장애 시연" 버튼용. .env 의 CHAOS_ENABLED=true 일 때만 동작 (배포 땐 false)
+// 스위치 상태는 DB에 저장되어 이중화된 두 서버(api-1, api-2)에 함께 적용됨
 @Controller('admin/chaos')
 @UseGuards(AdminGuard)
 export class ChaosController {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly sync: ChaosSync,
+  ) {}
 
   private guard() {
     if (!chaosEnabled()) throw new ForbiddenException('장애 시연이 꺼져 있어요 (.env 의 CHAOS_ENABLED=true 필요)')
@@ -30,46 +39,36 @@ export class ChaosController {
 
   // ① 응답 지연
   @Post('slow')
-  slow(@Body() dto: ChaosDto) {
+  async slow(@Body() dto: ChaosDto) {
     this.guard()
-    chaos.slowMs = dto.ms ?? 1500
-    chaos.slowUntil = this.until(dto.sec)
+    await this.sync.save({ slowMs: dto.ms ?? 1500, slowUntil: this.until(dto.sec) })
     return chaosSnapshot()
   }
 
   // ② DB 장애
   @Post('db-down')
-  dbDown(@Body() dto: ChaosDto) {
+  async dbDown(@Body() dto: ChaosDto) {
     this.guard()
-    chaos.dbDownUntil = this.until(dto.sec)
+    await this.sync.save({ dbDownUntil: this.until(dto.sec) })
     return chaosSnapshot()
   }
 
   // ③ 일부 요청 실패
   @Post('errors')
-  errors(@Body() dto: ChaosDto) {
+  async errors(@Body() dto: ChaosDto) {
     this.guard()
-    chaos.errorRate = dto.rate ?? 0.5
-    chaos.errorUntil = this.until(dto.sec)
+    await this.sync.save({ errorRate: dto.rate ?? 0.5, errorUntil: this.until(dto.sec) })
     return chaosSnapshot()
   }
 
-  // ④ 서버 다운 → Docker가 자동으로 다시 켬 (restart: unless-stopped)
+  // ④ API 한 대 다운 → 그 호기만 스스로 종료, Docker가 자동 재시작. 나머지 한 대가 계속 처리
   @Post('crash')
   @HttpCode(202)
-  crash() {
+  async crash(@Body() dto: CrashDto) {
     this.guard()
-    console.error('[chaos] 시연용 서버 다운 — 0.5초 뒤 프로세스 종료')
-    setTimeout(() => {
-      // 개발 모드에선 감시 프로세스(nest --watch)가 부모라서 그것까지 끝내야 컨테이너가 재시작됨
-      try {
-        process.kill(process.ppid, 'SIGKILL')
-      } catch {
-        /* 부모가 없으면 무시 */
-      }
-      process.exit(1)
-    }, 500)
-    return { ok: true, message: '서버를 내립니다. 잠시 뒤 자동으로 다시 켜져요.' }
+    const target = dto.instance ?? INSTANCE
+    await this.sync.save({ crashTarget: target, crashAt: Date.now() })
+    return { ok: true, target, message: `${target} 를 내립니다. 잠시 뒤 자동으로 다시 켜져요.` }
   }
 
   // ⑤ 재고 소진: 몬스테라 재고를 기준치 아래로
@@ -80,10 +79,10 @@ export class ChaosController {
     return { ok: true, item }
   }
 
-  // 즉시 정상화
+  // 즉시 정상화 (두 서버 모두)
   @Post('reset')
-  reset() {
-    resetChaos()
+  async reset() {
+    await this.sync.save({ slowUntil: 0, dbDownUntil: 0, errorUntil: 0, crashTarget: '' })
     return chaosSnapshot()
   }
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import * as os from 'node:os'
 import { PrismaService } from '../prisma/prisma.service'
-import { isDbDown } from '../chaos/chaos.state'
+import { INSTANCE, isDbDown } from '../chaos/chaos.state'
 
 const DAY = 24 * 60 * 60 * 1000
 const LEGACY_SHAPES: Record<string, string> = { classic: 'tapered', square: 'cylinder' }
@@ -89,6 +89,7 @@ export class ConsoleService {
     return {
       at: new Date().toISOString(),
       api: {
+        instance: INSTANCE,
         ok: true,
         uptimeSec: Math.round(process.uptime()),
         node: process.version,

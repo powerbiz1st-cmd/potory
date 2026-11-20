@@ -21,6 +21,8 @@ async function bootstrap() {
   app.enableShutdownHooks()
   const port = Number(process.env.PORT ?? 3000)
   await app.listen(port, '0.0.0.0')
+  // 장애 시연 "한 대 다운"이 이 서버의 접속을 끊을 수 있게 보관
+  ;(globalThis as { __httpServer?: unknown }).__httpServer = app.getHttpServer()
   console.log(`POTORY API listening on :${port}`)
 }
 bootstrap()

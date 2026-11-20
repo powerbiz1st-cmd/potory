@@ -22,7 +22,9 @@ const STARTUP_GRACE_MS = 120_000 // 시작 후 2분은 "부팅 중"으로 보고
 
 // 감시 대상 (Docker 안에서의 주소)
 const TARGETS = [
-  { id: 'api', name: 'API 서버', url: 'http://api:3000/health' },
+  { id: 'api', name: 'API 서버 (로드밸런서)', url: 'http://api:3000/health' }, // 고객 입장에서의 API (DB 포함)
+  { id: 'api-1', name: 'API 1호기', url: 'http://api-1:3000/health/live' }, // 이중화된 각 서버 생존
+  { id: 'api-2', name: 'API 2호기', url: 'http://api-2:3000/health/live' },
   { id: 'shop', name: 'Shop (고객 화면)', url: 'http://shop:5173/' },
   { id: 'admin', name: 'Admin (관리자)', url: 'http://admin:5174/' },
   { id: 'console', name: '운영 콘솔', url: 'http://console:5175/' },
