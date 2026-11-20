@@ -1,7 +1,9 @@
 ﻿# POTORY 시연 시작 (배포)
 #  1) Docker 전체 켜기  2) Cloudflare 임시 터널로 API 외부 공개
 #  3) 터널 주소를 GitHub 저장소 변수 API_URL 에 저장  4) Pages 다시 빌드·배포  5) 접속 링크 출력
-# 실행: custom-pot 폴더에서  powershell -ExecutionPolicy Bypass -File tools\demo\start-demo.ps1
+# 실행: custom-pot 폴더에서  powershell -ExecutionPolicy Bypass -File tools\demo\start-demo.ps1 [-Reset]
+#   -Reset : 시작 전에 데이터를 데모용으로 초기화 (reset-demo.ps1, 직전 DB는 backups 폴더에 백업)
+param([switch]$Reset)
 $ErrorActionPreference = 'Stop'
 # docker 진행 메시지(stderr)를 PowerShell이 오류로 오해하지 않게 cmd로 실행
 function Quiet([string]$c) { cmd /c "$c >nul 2>&1" }
@@ -9,6 +11,11 @@ Set-Location (Join-Path $PSScriptRoot '..\..')
 
 Write-Host "`n[1/5] Docker 서비스 켜는 중..." -ForegroundColor Cyan
 Quiet 'docker compose up -d'
+if ($Reset) {
+  Write-Host "      데모 데이터로 초기화..." -ForegroundColor Cyan
+  & (Join-Path $PSScriptRoot 'reset-demo.ps1') -Yes
+  if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) { throw '초기화 실패' }
+}
 
 Write-Host "[2/5] Cloudflare 임시 터널 여는 중..." -ForegroundColor Cyan
 Quiet 'docker compose --profile tunnel up -d --force-recreate tunnel'

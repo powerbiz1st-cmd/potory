@@ -54,7 +54,8 @@ docker compose up -d
 ## 배포 (시연 당일)
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File toolsdemostart-demo.ps1   # 터널 열기 + Pages 재배포 + 링크 출력
+powershell -ExecutionPolicy Bypass -File toolsdemostart-demo.ps1 -Reset   # 데모 데이터로 초기화 + 터널 + Pages 재배포 + 링크
+powershell -ExecutionPolicy Bypass -File toolsdemoeset-demo.ps1          # 초기화만 (직전 DB는 backups/before-reset-*.sql.gz)
 powershell -ExecutionPolicy Bypass -File toolsdemostop-demo.ps1    # 끝나면 터널 닫기
 ```
 
