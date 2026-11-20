@@ -14,3 +14,6 @@ apps/api/src/generated/
 
 # 갤러리 사진 (타사 상품 사진일 수 있어 로컬 시연용으로만 사용, 없으면 화분 그림으로 대체)
 apps/shop/public/gallery/
+
+# DB 백업 파일 (개인정보 포함 → git 제외)
+backups/

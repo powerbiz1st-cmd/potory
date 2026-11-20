@@ -16,6 +16,8 @@ export default defineConfig({
   },
   server: {
     watch: { usePolling: true },
+    // Docker 안 감시 컨테이너(watchdog)가 http://admin:포트 로 접속하는 걸 허용
+    allowedHosts: ['admin', 'localhost'],
     fs: { allow: ['..'] },
   },
 })

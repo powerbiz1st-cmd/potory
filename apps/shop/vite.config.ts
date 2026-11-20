@@ -11,5 +11,7 @@ export default defineConfig({
   },
   server: {
     watch: { usePolling: true }, // Docker + Windows 볼륨에서 파일 변경 감지
+    // Docker 안 감시 컨테이너(watchdog)가 http://shop:포트 로 접속하는 걸 허용
+    allowedHosts: ['shop', 'localhost'],
   },
 })

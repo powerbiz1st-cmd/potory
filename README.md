@@ -24,6 +24,7 @@ docker compose up -d
 - Shop: http://localhost:5173
 - Admin: http://localhost:5174 (`.env` 의 `ADMIN_TOKEN` 으로 로그인)
 - Console: http://localhost:5175 (같은 토큰)
+- 알림 메일함(테스트용 Mailpit): http://localhost:8025
 - API 상태: http://localhost:3000/health
 
 같은 와이파이의 휴대폰에서는 `http://<PC의 IP>:5173` 으로 접속하면 됩니다.
@@ -43,6 +44,36 @@ docker compose up -d
 | `GET` | `/admin/console/stats?days=14` | 콘솔: 날짜별 주문·매출, 상태별·모양별, 리드타임, 재고 부족 |
 | `GET` | `/admin/console/system` | 콘솔: API·DB·호스트 상태 (메모리, DB 응답시간·크기·연결 수) |
 | `GET` | `/health` | 서버 · DB 상태 |
+
+## 모니터링 · 알림 · 백업
+
+| 서비스 | 역할 |
+|---|---|
+| `watchdog` (:3100) | API·Shop·Admin·Console을 10초마다 바깥에서 확인. 2번 연속 실패하면 **장애 메일**, 살아나면 **복구 메일**(중단 시간 포함). 콘솔이 `/status`를 읽어 표시 |
+| `mailpit` (:8025) | 가짜 메일함. 메일 계정을 설정하기 전에도 알림을 여기서 확인 |
+| `backup` | 켜질 때 1번 + 24시간마다 DB를 `./backups/*.sql.gz`로 저장, 최근 7개 보관 (git 제외) |
+
+모든 서비스는 `restart: unless-stopped` — 죽으면 Docker가 자동으로 다시 켭니다.
+
+### 알림 메일 계정 설정
+
+`.env`에 적습니다 (git에 안 올라감). 비워 두면 Mailpit으로 갑니다. Gmail 예시:
+
+```
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_USER=보내는주소@gmail.com
+SMTP_PASS=구글 앱 비밀번호 16자리
+ALERT_TO=받는주소@example.com
+```
+
+Gmail은 계정에 2단계 인증을 켠 뒤 "앱 비밀번호"를 발급해 `SMTP_PASS`에 넣습니다 (일반 로그인 비밀번호는 안 됨). 저장 후 `docker compose up -d watchdog`.
+
+### 백업 복원
+
+```bash
+gunzip -c backups/potory-YYYYMMDD-HHMMSS.sql.gz | docker compose exec -T db psql -U potory -d potory
+```
 
 ## 3D 식물 모델 변환
 

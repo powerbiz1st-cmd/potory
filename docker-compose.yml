@@ -1,8 +1,9 @@
 # POTORY — 커스텀 화분 플랫폼 (개발용 구성)
-# 실행: docker compose up -d   →  Shop http://localhost:5173 · API http://localhost:3000/health
+# 실행: docker compose up -d   →  Shop :5173 · Admin :5174 · Console :5175 · API :3000/health · 메일함 :8025
 # 비밀값은 .env 파일에 (.env.example 참고). .env 는 git에 올라가지 않습니다.
 services:
   db:
+    restart: unless-stopped
     image: postgres:17-alpine
     environment:
       POSTGRES_USER: potory
@@ -19,6 +20,7 @@ services:
     # ports: ["5432:5432"]
 
   api:
+    restart: unless-stopped
     image: node:22-alpine
     working_dir: /app
     # 설치 → Prisma 클라이언트 생성 → DB 마이그레이션 적용 → 개발 서버(파일 바뀌면 자동 재시작)
@@ -39,6 +41,7 @@ services:
         condition: service_healthy
 
   shop:
+    restart: unless-stopped
     image: node:22-alpine
     working_dir: /app
     command: sh -c "npm install --no-audit --no-fund && npm run dev -- --host 0.0.0.0 --port 5173"
@@ -53,6 +56,7 @@ services:
       - VITE_API_URL=${VITE_API_URL:-}
 
   admin:
+    restart: unless-stopped
     image: node:22-alpine
     # Shop의 디자인 타입·화분 그림(apps/shop/src)을 같이 쓰려고 apps 폴더 전체를 붙임
     working_dir: /apps/admin
@@ -67,6 +71,7 @@ services:
       - VITE_API_URL=${VITE_API_URL:-}
 
   console:
+    restart: unless-stopped
     image: node:22-alpine
     working_dir: /apps/console
     command: sh -c "npm install --no-audit --no-fund && npm run dev -- --host 0.0.0.0 --port 5175"
@@ -79,9 +84,57 @@ services:
       - CHOKIDAR_USEPOLLING=true
       - VITE_API_URL=${VITE_API_URL:-}
 
+  # ---- 7. 모니터링 · 알림 · 백업 ----
+  watchdog:
+    # 각 서비스를 10초마다 확인, 장애/복구 시 메일 (설정은 .env 의 SMTP_* / ALERT_TO)
+    image: node:22-alpine
+    restart: unless-stopped
+    working_dir: /app
+    command: sh -c "npm install --no-audit --no-fund && node watchdog.mjs"
+    ports:
+      - "3100:3100"
+    environment:
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-465}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      ALERT_FROM: ${ALERT_FROM:-}
+      ALERT_TO: ${ALERT_TO:-}
+      CHECK_INTERVAL_SEC: ${CHECK_INTERVAL_SEC:-10}
+    volumes:
+      - ./apps/watchdog:/app
+      - watchdog_node_modules:/app/node_modules
+      - watchdog_data:/data
+      - ./backups:/backups:ro
+
+  mailpit:
+    # 가짜 메일함: SMTP 설정 전에도 알림 메일을 http://localhost:8025 에서 확인
+    image: axllent/mailpit:v1.34
+    restart: unless-stopped
+    ports:
+      - "8025:8025"
+
+  backup:
+    # DB를 켜질 때 1번 + 24시간마다 ./backups 에 저장, 최근 7개 보관
+    image: postgres:17-alpine
+    restart: unless-stopped
+    entrypoint: ["sh", "/backup.sh"]
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD:-potory_dev}
+      BACKUP_INTERVAL_HOURS: ${BACKUP_INTERVAL_HOURS:-24}
+      BACKUP_KEEP: ${BACKUP_KEEP:-7}
+    volumes:
+      - ./tools/backup/backup.sh:/backup.sh:ro
+      - ./backups:/backups
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   db_data:
   admin_node_modules:
   console_node_modules:
   api_node_modules:
   shop_node_modules:
+  watchdog_node_modules:
+  watchdog_data:

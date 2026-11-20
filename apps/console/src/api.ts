@@ -63,7 +63,26 @@ export const api = {
   system: () => call<SystemInfo>('/admin/console/system'),
 }
 
-export const won = (n: number) => n.toLocaleString('ko-KR') + '원'
+// ---- watchdog (서비스 감시 · 메일 알림 · 백업) ----
+export const WATCHDOG_URL = (import.meta.env.VITE_WATCHDOG_URL as string | undefined) || `${location.protocol}//${location.hostname}:3100`
+
+export interface WatchStatus {
+  at: string
+  intervalSec: number
+  mail: { mode: string; to: string }
+  targets: { id: string; name: string; status: 'up' | 'down' | 'unknown'; lastMs: number | null; lastError: string | null; since: string | null }[]
+  incidents: { id: string; name: string; type: 'up' | 'down'; at: string; error?: string; downForMs?: number }[]
+  mails: { at: string; subject: string; to: string; ok: boolean; error: string | null }[]
+  backup: { file: string; at: string; sizeKb: number; count: number } | null
+}
+
+export async function watchStatus(): Promise<WatchStatus> {
+  const res = await fetch(`${WATCHDOG_URL}/status`, { signal: AbortSignal.timeout(3000) })
+  if (!res.ok) throw new Error(`watchdog ${res.status}`)
+  return res.json()
+}
+
+export const won =(n: number) => n.toLocaleString('ko-KR') + '원'
 export const fmtUptime = (s: number) => {
   const d = Math.floor(s / 86400)
   const h = Math.floor((s % 86400) / 3600)

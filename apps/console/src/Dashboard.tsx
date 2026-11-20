@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import { AuthError, DownError, api, fmtUptime, won, type Stats, type SystemInfo } from '@/api'
 import { DailyBars, HBars, Sparkline } from '@/charts'
+import WatchPanel from '@/WatchPanel'
 
 const POLL_MS = 5000
 const HISTORY = 30 // 응답시간 그래프에 남길 측정 횟수 (5초 × 30 = 2분 30초)
@@ -199,6 +200,9 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
           />
         </section>
 
+        {/* 7번 모니터링: 서비스 감시 · 알림 메일 · 백업 */}
+        <WatchPanel />
+
         {/* 핵심 숫자 */}
         <section className="grid grid-cols-2 gap-3 lg:grid-cols-5">
           <Kpi icon={Wallet} label="오늘 매출" value={stats && won(stats.today.revenue)} sub={stats ? `${stats.today.orders}건` : undefined} />
@@ -259,7 +263,7 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-sm">장애 · 이벤트 기록</CardTitle>
-            <span className="text-xs text-muted-foreground">이 화면을 연 뒤부터 · 이메일 알림은 모니터링 단계에서 연결</span>
+            <span className="text-xs text-muted-foreground">이 화면을 연 뒤부터 · 화면을 닫아도 장애는 위 "알림 메일"로 전달돼요</span>
           </CardHeader>
           <CardContent>
             {incidents.length === 0 ? (
