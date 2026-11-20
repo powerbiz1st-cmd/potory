@@ -63,6 +63,32 @@ export const api = {
   system: () => call<SystemInfo>('/admin/console/system'),
 }
 
+// ---- 장애 시연 (API의 /admin/chaos) ----
+export interface ChaosState {
+  enabled: boolean
+  slow: { ms: number; leftSec: number }
+  dbDown: { leftSec: number }
+  errors: { rate: number; leftSec: number }
+}
+export type ChaosAction = 'slow' | 'db-down' | 'errors' | 'crash' | 'stock-low' | 'reset'
+
+export async function chaosState(): Promise<ChaosState> {
+  const res = await fetch(`${API_URL}/admin/chaos`, { headers: { 'x-admin-token': getToken() ?? '' }, signal: AbortSignal.timeout(3000) })
+  if (!res.ok) throw new Error(`chaos ${res.status}`)
+  return res.json()
+}
+
+export async function chaosRun(action: ChaosAction, body: Record<string, number> = {}) {
+  const res = await fetch(`${API_URL}/admin/chaos/${action}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-token': getToken() ?? '' },
+    body: JSON.stringify(body),
+  })
+  const json = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(json?.message ?? `실패 (${res.status})`)
+  return json
+}
+
 // ---- watchdog (서비스 감시 · 메일 알림 · 백업) ----
 export const WATCHDOG_URL = (import.meta.env.VITE_WATCHDOG_URL as string | undefined) || `${location.protocol}//${location.hostname}:3100`
 

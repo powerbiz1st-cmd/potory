@@ -2,6 +2,7 @@ import 'reflect-metadata'
 import { ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
+import { chaosMiddleware } from './chaos/chaos.state'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
@@ -10,6 +11,9 @@ async function bootstrap() {
   // 배포 땐 "https://shop.도메인,https://admin.도메인" 처럼 콤마로 지정
   const origins = (process.env.CORS_ORIGINS ?? '').split(',').map((s) => s.trim()).filter(Boolean)
   app.enableCors({ origin: origins.length ? origins : true })
+
+  // 장애 시연 스위치 (CHAOS_ENABLED=true 일 때만 동작)
+  app.use(chaosMiddleware)
 
   // 요청 본문 검증: DTO에 없는 필드는 거절, 숫자/문자 자동 변환
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }))

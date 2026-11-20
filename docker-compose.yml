@@ -31,6 +31,7 @@ services:
       DATABASE_URL: postgresql://potory:${POSTGRES_PASSWORD:-potory_dev}@db:5432/potory
       ADMIN_TOKEN: ${ADMIN_TOKEN:-}
       CORS_ORIGINS: ${CORS_ORIGINS:-}
+      CHAOS_ENABLED: ${CHAOS_ENABLED:-false} # 장애 시연 버튼 (시연용 PC에서만 true)
       TSC_WATCHFILE: DynamicPriorityPolling # Docker + Windows 볼륨에서 파일 변경 감지
       TSC_WATCHDIRECTORY: DynamicPriorityPolling
     volumes:

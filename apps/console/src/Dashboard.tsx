@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils'
 import { AuthError, DownError, api, fmtUptime, won, type Stats, type SystemInfo } from '@/api'
 import { DailyBars, HBars, Sparkline } from '@/charts'
 import WatchPanel from '@/WatchPanel'
+import ChaosPanel from '@/ChaosPanel'
 
 const POLL_MS = 5000
 const HISTORY = 30 // 응답시간 그래프에 남길 측정 횟수 (5초 × 30 = 2분 30초)
@@ -199,6 +200,9 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
             sub={sys ? `CPU ${sys.host.cpus}코어 · 부하 ${sys.host.load1} · 여유 ${(sys.host.memFreeMb / 1024).toFixed(1)}GB` : '확인 중…'}
           />
         </section>
+
+        {/* 장애 시연 버튼 (CHAOS_ENABLED=true 일 때만 동작) */}
+        <ChaosPanel />
 
         {/* 7번 모니터링: 서비스 감시 · 알림 메일 · 백업 */}
         <WatchPanel />

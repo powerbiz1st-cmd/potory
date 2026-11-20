@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import * as os from 'node:os'
 import { PrismaService } from '../prisma/prisma.service'
+import { isDbDown } from '../chaos/chaos.state'
 
 const DAY = 24 * 60 * 60 * 1000
 const LEGACY_SHAPES: Record<string, string> = { classic: 'tapered', square: 'cylinder' }
@@ -77,6 +78,7 @@ export class ConsoleService {
     const t0 = Date.now()
     let db: { ok: boolean; latencyMs: number; sizeMb?: number; connections?: number }
     try {
+      if (isDbDown()) throw new Error('chaos: db down') // 장애 시연 ② 중에는 DB 장애로 보고
       const [size] = await this.prisma.$queryRaw<{ mb: number }[]>`SELECT round(pg_database_size(current_database()) / 1048576.0, 1)::float AS mb`
       const [conn] = await this.prisma.$queryRaw<{ n: number }[]>`SELECT count(*)::int AS n FROM pg_stat_activity WHERE datname = current_database()`
       db = { ok: true, latencyMs: Date.now() - t0, sizeMb: size.mb, connections: conn.n }
