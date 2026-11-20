@@ -39,6 +39,8 @@ docker compose up -d
 | `PATCH` | `/admin/orders/:no/status` | 관리자: 상태 변경 (접수 → 제작 중 → 출고 / 취소 시 재고 복구) |
 | `GET` | `/admin/stock` | 관리자: 재고 (주문 시 화분 몸체·몬스테라 자동 차감) |
 | `PATCH` | `/admin/stock/:sku` | 관리자: 입고·수동 조정 |
+| `GET` | `/admin/console/stats?days=14` | 콘솔: 날짜별 주문·매출, 상태별·모양별, 리드타임, 재고 부족 |
+| `GET` | `/admin/console/system` | 콘솔: API·DB·호스트 상태 (메모리, DB 응답시간·크기·연결 수) |
 | `GET` | `/health` | 서버 · DB 상태 |
 
 ## 3D 식물 모델 변환
