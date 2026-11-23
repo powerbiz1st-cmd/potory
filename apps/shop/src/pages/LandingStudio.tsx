@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { DEFAULT_DESIGN, PLANT, SHAPES, encodeDesign, won, type Design } from '@/design'
 import { prefersReducedMotion } from '@/hooks'
+import { galleryImg } from '@/orders'
 import { preloadPlant } from '@/three/ModelPlant'
 
 // 시안 B "스튜디오 오브젝트" 전체 랜딩 (#/studio)
@@ -25,7 +26,7 @@ const STEPS = [
   ['심어서 보내 드려요', '주문 즉시 제작지시서가 공방으로. 몬스테라를 심어 3–5 영업일 안에 출고해요.'],
 ] as const
 
-const IMG = (n: number) => `${import.meta.env.BASE_URL}gallery/monstera-${n}.jpg`
+const IMG = galleryImg
 const MADE: { name: string; by: string; img: string; pos?: string; design: Design }[] = [
   { name: '화이트 페데스탈', by: '@hong.pot', img: IMG(1), pos: '50% 78%', design: DEFAULT_DESIGN },
   { name: '샌드 아워글라스', by: '@mint_jy', img: IMG(2), design: { ...DEFAULT_DESIGN, shape: 'round', color: '#DCD3C3' } },

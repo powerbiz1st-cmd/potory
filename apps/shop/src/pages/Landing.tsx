@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { DEFAULT_DESIGN, PLANT, SHAPES, encodeDesign, randomDesign, won, type Design } from '@/design'
 import { prefersReducedMotion } from '@/hooks'
+import { galleryImg } from '@/orders'
 import SiteHeader from '@/components/SiteHeader'
 import LiftText from '@/components/LiftText'
 import PotThumb from '@/components/PotThumb'
@@ -19,7 +20,7 @@ const HERO: Design = DEFAULT_DESIGN
 preloadPlant('monstera')
 
 // 갤러리: 실제 몬스테라 화분 사진 + 누르면 비슷한 디자인으로 만들기 시작
-const IMG = (n: number) => `${import.meta.env.BASE_URL}gallery/monstera-${n}.jpg`
+const IMG = galleryImg
 const PRESETS: { name: string; by: string; img: string; pos?: string; design: Design }[] = [
   { name: '화이트 페데스탈', by: '@hong.pot', img: IMG(1), pos: '50% 78%', design: HERO },
   { name: '샌드 아워글라스', by: '@mint_jy', img: IMG(2), design: { ...DEFAULT_DESIGN, shape: 'round', color: '#DCD3C3' } },

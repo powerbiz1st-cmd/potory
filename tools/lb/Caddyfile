@@ -6,6 +6,14 @@
 }
 
 :3000 {
+	# 시연용 갤러리 사진: git에 올리지 않고 이 PC 폴더에서 바로 내보냄 (터널이 열려 있는 동안만 보임)
+	handle_path /gallery/* {
+		header Access-Control-Allow-Origin *
+		root * /srv/gallery
+		file_server
+	}
+
+	handle {
 	reverse_proxy api-1:3000 api-2:3000 {
 		# 번갈아 보내기
 		lb_policy round_robin
@@ -22,5 +30,6 @@
 		health_uri /health/live
 		health_interval 2s
 		health_timeout 2s
+	}
 	}
 }

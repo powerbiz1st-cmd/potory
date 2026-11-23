@@ -30,6 +30,7 @@ services:
       - "3000:3000"
     volumes:
       - ./tools/lb/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./apps/shop/public/gallery:/srv/gallery:ro # 시연용 갤러리 사진 (git 제외 폴더)
     depends_on:
       - api-1
       - api-2

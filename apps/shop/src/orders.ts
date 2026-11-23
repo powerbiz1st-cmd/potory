@@ -19,6 +19,10 @@ export interface Order {
 // VITE_API_URL 이 없으면 "지금 접속한 주소의 3000번 포트" → 같은 와이파이 휴대폰에서도 동작
 export const API_URL = (import.meta.env.VITE_API_URL as string | undefined) || `${location.protocol}//${location.hostname}:3000`
 
+// 갤러리 사진: 개발 중엔 public 폴더, 배포본(Pages)에선 API 로드밸런서가 이 PC 폴더에서 내보냄 (git에 안 올림)
+export const galleryImg = (n: number) =>
+  import.meta.env.PROD ? `${API_URL}/gallery/monstera-${n}.jpg` : `${import.meta.env.BASE_URL}gallery/monstera-${n}.jpg`
+
 const KEY = 'potory.myOrders'
 export const ORDERS_CHANGED = 'potory:orders-changed'
 
